@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termo de Garantia de Conserto — OS #{{ os.numero }}</title>
+    <style>
+        /* ── Base ── */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9.5pt;
+            color: #1a1a1a;
+            background: #e8e8e8;
+        }
+
+        /* ── Botões no navegador ── */
+        .no-print {
+            text-align: center;
+            padding: 12px;
+            background: #343a40;
+        }
+        .no-print button {
+            padding: 8px 22px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            margin: 4px;
+            font-family: Arial, sans-serif;
+        }
+        .btn-imprimir { background: #0d6efd; color: #fff; }
+        .btn-fechar   { background: #6c757d; color: #fff; }
+
+        /* ── Folha A4 ── */
+        .folha {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 18px auto;
+            background: #fff;
+            padding: 14mm 16mm 14mm 16mm;
+            box-shadow: 0 4px 18px rgba(0,0,0,.18);
+        }
+
+        /* ══════════════ CABEÇALHO ══════════════ */
+        .cabecalho {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1a1a1a;
+            margin-bottom: 14px;
+        }
+        .cabecalho-logo {
+            flex-shrink: 0;
+            width: 52px; height: 52px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 22px; font-weight: bold;
+        }
+        .cabecalho-texto { flex: 1; }
+        .cabecalho-texto h1 {
+            font-size: 13pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            line-height: 1.2;
+        }
+        .cabecalho-texto p { font-size: 8pt; color: #555; margin-top: 2px; }
+        .cabecalho-os {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .cabecalho-os .os-label { font-size: 7.5pt; color: #777; text-transform: uppercase; letter-spacing: 1px; }
+        .cabecalho-os .os-num {
+            font-size: 17pt;
+            font-weight: 800;
+            border: 2.5px solid #1a1a1a;
+            padding: 2px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+        .cabecalho-os .os-data { font-size: 8pt; color: #555; margin-top: 3px; }
+
+        /* ══════════════ TÍTULO CENTRAL ══════════════ */
+        .titulo-bloco {
+            text-align: center;
+            margin: 10px 0 14px;
+        }
+        .titulo-bloco h2 {
+            font-size: 14pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            padding: 6px 0;
+            display: inline-block;
+            width: 100%;
+        }
+
+        /* ══════════════ GRID DE DADOS (2 colunas) ══════════════ */
+        .grid-dados {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .grid-dados .bloco-full { grid-column: 1 / -1; }
+
+        /* ── Bloco de dados ── */
+        .bloco {
+            border: 1px solid #d0d0d0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .bloco-header {
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+        }
+        .bloco-body {
+            padding: 8px 10px;
+            background: #fafafa;
+        }
+        .bloco-body table { width: 100%; border-collapse: collapse; }
+        .bloco-body table td {
+            padding: 2px 0;
+            vertical-align: top;
+            font-size: 9pt;
+            line-height: 1.4;
+        }
+        .bloco-body table td.label {
+            font-weight: 700;
+            white-space: nowrap;
+            width: 80px;
+            color: #444;
+            padding-right: 6px;
+        }
+        .bloco-body .desc-servico {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed #ccc;
+            font-style: italic;
+            font-size: 8.5pt;
+            color: #333;
+            line-height: 1.45;
+        }
+
+        /* ══════════════ CRACHÁ DE PRAZO ══════════════ */
+        .cracha-garantia {
+            margin: 10px 0;
+            border: 2px solid #1a1a1a;
+            border-radius: 7px;
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+        }
+        .cracha-icone {
+            background: #1a1a1a;
+            color: #fff;
+            width: 54px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+            font-size: 22px;
+        }
+        .cracha-conteudo {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: #fff8e1;
+            gap: 10px;
+        }
+        .cracha-prazo {
+            text-align: center;
+        }
+        .cracha-prazo .dias-numero {
+            font-size: 30pt;
+            font-weight: 900;
+            line-height: 1;
+            color: #1a1a1a;
+        }
+        .cracha-prazo .dias-label {
+            font-size: 10pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #555;
+        }
+        .cracha-datas {
+            font-size: 8.5pt;
+            line-height: 1.8;
+            color: #333;
+            text-align: right;
+        }
+        .cracha-datas span { font-weight: 700; color: #000; }
+
+        /* ══════════════ CLÁUSULAS ══════════════ */
+        .clausulas {
+            margin-top: 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .clausulas-header {
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+        }
+        .clausulas-body { padding: 10px 12px; background: #fafafa; }
+
+        .clausula {
+            margin-bottom: 8px;
+        }
+        .clausula:last-child { margin-bottom: 0; }
+        .clausula-titulo {
+            font-size: 8.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #1a1a1a;
+            margin-bottom: 3px;
+        }
+        .clausula p {
+            font-size: 8.5pt;
+            line-height: 1.55;
+            text-align: justify;
+            color: #222;
+            margin-bottom: 2px;
+        }
+
+        /* ══════════════ ASSINATURAS ══════════════ */
+        .assinaturas {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin-top: 22px;
+        }
+        .ass-bloco { flex: 1; text-align: center; }
+        .ass-linha {
+            border-top: 1.5px solid #1a1a1a;
+            padding-top: 5px;
+            margin-top: 42px;
+            font-size: 8.5pt;
+            line-height: 1.55;
+            color: #222;
+        }
+
+        /* ══════════════ RODAPÉ ══════════════ */
+        .rodape {
+            text-align: center;
+            font-size: 7.5pt;
+            color: #888;
+            margin-top: 16px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 6px;
+        }
+
+        /* ══════════════ PRINT ══════════════ */
+        @media print {
+            body { background: #fff; }
+            .no-print { display: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { size: A4 portrait; margin: 0; }
+            .folha { width: 210mm; margin: 0; padding: 13mm 15mm 12mm 15mm; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Controles apenas no navegador -->
+<div class="no-print">
+    <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="btn-fechar"   onclick="window.close()">✖ Fechar</button>
+</div>
+
+<div class="folha">
+
+    <!-- ── Cabeçalho ── -->
+    <div class="cabecalho">
+        <div class="cabecalho-logo">
+            {% if emitente %}{{ emitente.nome|slice:":1" }}{% else %}L{% endif %}
+        </div>
+        <div class="cabecalho-texto">
+            {% if emitente %}
+            <h1>{{ emitente.nome }}</h1>
+            <p>{{ emitente.endereco }}</p>
+            <p>CNPJ: {{ emitente.cnpj }}{% if emitente.telefone %} &nbsp;|&nbsp; Tel: {{ emitente.telefone }}{% endif %}{% if emitente.email %} &nbsp;|&nbsp; {{ emitente.email }}{% endif %}</p>
+            {% endif %}
+        </div>
+        <div class="cabecalho-os">
+            <div class="os-label">Ordem de Serviço</div>
+            <div class="os-num">{{ os.numero }}</div>
+            <div class="os-data">{{ os.data_entrada|date:"d/m/Y" }}</div>
+        </div>
+    </div>
+
+    <!-- ── Título ── -->
+    <div class="titulo-bloco">
+        <h2>Termo de Garantia de Conserto</h2>
+    </div>
+
+    <!-- ── Grade de dados ── -->
+    <div class="grid-dados">
+
+        <!-- Cliente -->
+        <div class="bloco">
+            <div class="bloco-header">Cliente</div>
+            <div class="bloco-body">
+                <table>
+                    <tr><td class="label">Nome:</td><td><strong>{{ os.cliente.nome }}</strong></td></tr>
+                    <tr><td class="label">CPF:</td><td>{{ os.cliente.cpf|default:"—" }}</td></tr>
+                    <tr><td class="label">Telefone:</td><td>{{ os.cliente.telefone|default:"—" }}</td></tr>
+                    {% if os.cliente.endereco %}<tr><td class="label">Endereço:</td><td>{{ os.cliente.endereco }}</td></tr>{% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Aparelho -->
+        <div class="bloco">
+            <div class="bloco-header">Aparelho</div>
+            <div class="bloco-body">
+                <table>
+                    <tr><td class="label">Modelo:</td><td><strong>{{ os.aparelho }}</strong></td></tr>
+                    <tr><td class="label">IMEI:</td><td>{{ os.imei|default:"—" }}</td></tr>
+                    <tr><td class="label">Acessórios:</td><td>{{ os.acessorios|default:"Nenhum" }}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Serviço (largura total) -->
+        <div class="bloco bloco-full">
+            <div class="bloco-header">Serviço Realizado</div>
+            <div class="bloco-body">
+                <table>
+                    <tr>
+                        <td class="label">Tipo:</td>
+                        <td style="width:33%">{{ os.get_tipo_servico_display }}</td>
+                        <td class="label">Técnico:</td>
+                        <td style="width:33%">{{ os.tecnico|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Entrada:</td>
+                        <td>{{ os.data_entrada|date:"d/m/Y" }}</td>
+                        <td class="label">Conclusão:</td>
+                        <td>{% if os.data_conclusao %}{{ os.data_conclusao|date:"d/m/Y" }}{% else %}—{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Valor:</td>
+                        <td><strong>R$ {% if os.valor_final and os.valor_final > 0 %}{{ os.valor_final|floatformat:2 }}{% else %}{{ os.valor_orcamento|floatformat:2 }}{% endif %}</strong></td>
+                        <td class="label">Pagamento:</td>
+                        <td>{% if os.forma_pagamento %}{{ os.get_forma_pagamento_display }}{% else %}—{% endif %}</td>
+                    </tr>
+                </table>
+                <div class="desc-servico">
+                    {% if os.observacoes_tecnico %}<strong>Serviço executado:</strong> {{ os.observacoes_tecnico }}
+                    {% else %}<strong>Problema relatado:</strong> {{ os.descricao_problema }}{% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>{# fim grid-dados #}
+
+    <!-- ── Crachá de Prazo de Garantia ── -->
+    <div class="cracha-garantia">
+        <div class="cracha-icone">🛡</div>
+        <div class="cracha-conteudo">
+            <div class="cracha-prazo">
+                <div class="dias-numero">{{ os.garantia_dias }}</div>
+                <div class="dias-label">dias de garantia</div>
+            </div>
+            <div class="cracha-datas">
+                <div>Início &nbsp;<span>{{ data_inicio_garantia|date:"d/m/Y" }}</span></div>
+                <div>Vencimento &nbsp;<span>{{ data_fim_garantia|date:"d/m/Y" }}</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Cláusulas ── -->
+    <div class="clausulas">
+        <div class="clausulas-header">Termos e Condições da Garantia</div>
+        <div class="clausulas-body">
+
+            <div class="clausula">
+                <div class="clausula-titulo">I — Abrangência</div>
+                <p><strong>1.1.</strong> Esta garantia cobre exclusivamente os defeitos decorrentes do serviço realizado e das peças substituídas descrito neste documento.</p>
+                <p><strong>1.2.</strong> Constatado o mesmo defeito dentro do prazo, o estabelecimento refará o serviço sem custo adicional ao cliente.</p>
+            </div>
+
+            <div class="clausula">
+                <div class="clausula-titulo">II — Limitações e Exclusões</div>
+                <p><strong>2.1.</strong> A garantia <strong>não cobre</strong>: quedas, colisões ou impactos; danos por líquidos, oxidação ou corrosão; mau uso ou sobrecarga elétrica; defeitos em componentes não relacionados ao serviço; reparos por terceiros durante o período de garantia.</p>
+                <p><strong>2.2.</strong> A retirada de selos, lacres ou sinais de violação invalida automaticamente esta garantia.</p>
+                <p><strong>2.3.</strong> Garantia pessoal e intransferível, válida somente para o cliente identificado neste documento.</p>
+            </div>
+
+            <div class="clausula">
+                <div class="clausula-titulo">III — Acionamento e Declaração do Cliente</div>
+                <p><strong>3.1.</strong> Para acionar a garantia, apresente este documento no estabelecimento dentro do prazo. O serviço será refeito em até <strong>{{ prazo_atendimento }} dias úteis</strong> após avaliação técnica.</p>
+                <p><strong>3.2.</strong> O cliente declara ter recebido o aparelho em perfeitas condições, conferindo com o serviço contratado, e concorda com todos os termos desta garantia.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Assinaturas ── -->
+    <div class="assinaturas">
+        <div class="ass-bloco">
+            <div class="ass-linha">
+                <strong>EMPRESA / RESPONSÁVEL TÉCNICO</strong><br>
+                {% if emitente %}{{ emitente.nome }}{% endif %}
+                {% if os.tecnico %}<br>Técnico: {{ os.tecnico }}{% endif %}
+            </div>
+        </div>
+        <div class="ass-bloco">
+            <div class="ass-linha">
+                <strong>CLIENTE</strong><br>
+                {{ os.cliente.nome }}<br>
+                {% if os.cliente.cpf %}CPF: {{ os.cliente.cpf }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Rodapé ── -->
+    <div class="rodape">
+        Emitido em {{ now|date:"d/m/Y" }} às {{ now|date:"H:i" }}
+        {% if emitente %} &nbsp;|&nbsp; {{ emitente.nome }}{% endif %}
+        &nbsp;|&nbsp; OS #{{ os.numero }}
+    </div>
+
+</div>{# fim .folha #}
+
+</body>
+</html>

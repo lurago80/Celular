@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Compra{% endblock %}
+
+{% block content %}
+<!-- Debug -->
+{% if not produtos %}
+<div class="alert alert-warning">
+    <strong>ATENÇÃO:</strong> Nenhum produto cadastrado! Cadastre produtos antes de fazer compras.
+    <a href="{% url 'core:cadastrar_produto' %}" class="alert-link">Cadastrar Produto</a>
+</div>
+{% endif %}
+
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-cart-plus"></i> Nova Compra de Fornecedor</h1>
+
+    <form method="POST" id="compraForm">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Fornecedor</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Selecione o Fornecedor *</label>
+                            <select name="fornecedor" class="form-select" required>
+                                <option value="">Selecione...</option>
+                                {% for fornecedor in fornecedores %}
+                                <option value="{{ fornecedor.id }}">{{ fornecedor.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Itens da Compra</h5>
+                <button type="button" class="btn btn-light btn-sm" id="btnAdicionarItem">
+                    <i class="bi bi-plus-circle"></i> Adicionar Item
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="itens-container">
+                    <!-- Primeira linha aparece por padrão -->
+                    <div class="row mb-3 align-items-end" id="linha-1">
+                        <div class="col-md-5">
+                            <label class="form-label">Produto</label>
+                            <select name="produto" class="form-select produto-select">
+                                <option value="">Selecione...</option>
+                                {% for produto in produtos %}
+                                <option value="{{ produto.id }}" data-preco="{{ produto.preco_custo }}">{{ produto.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Quantidade</label>
+                            <input type="number" name="quantidade" class="form-control" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Preço Unitário</label>
+                            <input type="number" name="preco_unitario" class="form-control preco-input" step="0.01" value="0.00" required>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <button type="button" class="btn btn-danger" onclick="if(contadorLinhas() > 1) removerLinha(1)" title="Remover item">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Observações e Pagamento -->
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Observações e Pagamento</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Forma de Pagamento *</label>
+                            <select name="forma_pagamento" class="form-select" required>
+                                <option value="dinheiro">Dinheiro</option>
+                                <option value="pix">PIX</option>
+                                <option value="transferencia">Transferência</option>
+                                <option value="cheque">Cheque</option>
+                                <option value="boleto">Boleto</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label">Observações</label>
+                            <textarea name="observacoes" class="form-control" rows="3" 
+                                      placeholder="Ex: Celular comprado do cliente para revenda. Pequeno risco na tela..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'core:listar_compras' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Registrar Compra
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+let contador = 1;
+
+function adicionarLinha() {
+    contador++;
+    const container = document.getElementById('itens-container');
+    
+    const linha = document.createElement('div');
+    linha.className = 'row mb-3 align-items-end';
+    linha.id = `linha-${contador}`;
+    linha.innerHTML = `
+        <div class="col-md-5">
+            <label class="form-label">Produto</label>
+            <select name="produto" class="form-select produto-select">
+                <option value="">Selecione...</option>
+                {% for produto in produtos %}
+                <option value="{{ produto.id }}" data-preco="{{ produto.preco_custo }}">{{ produto.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Quantidade</label>
+            <input type="number" name="quantidade" class="form-control" value="1" min="1" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Preço Unitário</label>
+            <input type="number" name="preco_unitario" class="form-control preco-input" step="0.01" value="0.00" required>
+        </div>
+        <div class="col-md-2 text-center">
+            <button type="button" class="btn btn-danger" onclick="removerLinha(${contador})">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(linha);
+    
+    // Adicionar evento onchange ao novo select
+    const novoSelect = linha.querySelector('.produto-select');
+    novoSelect.addEventListener('change', function() {
+        atualizarPreco(novoSelect);
+    });
+}
+
+function contadorLinhas() {
+    return document.querySelectorAll('.row.mb-3.align-items-end').length;
+}
+
+function removerLinha(id) {
+    const totalLinhas = contadorLinhas();
+    if (totalLinhas <= 1) {
+        alert('A compra deve ter pelo menos um item!');
+        return;
+    }
+    
+    const linha = document.getElementById(`linha-${id}`);
+    if (linha) {
+        linha.remove();
+    }
+}
+
+function atualizarPreco(selectElement) {
+    const linha = selectElement.closest('.row');
+    const precoInput = linha.querySelector('.preco-input');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+    if (selectedOption.value && selectedOption.dataset.preco) {
+        precoInput.value = parseFloat(selectedOption.dataset.preco).toFixed(2);
+    }
+}
+
+// Configurar eventos quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listener para botão adicionar
+    const btnAdicionar = document.getElementById('btnAdicionarItem');
+    if (btnAdicionar) {
+        btnAdicionar.addEventListener('click', adicionarLinha);
+    }
+    
+    // Event listener para selects existentes
+    document.querySelectorAll('.produto-select').forEach(function(select) {
+        select.addEventListener('change', function() {
+            atualizarPreco(select);
+        });
+    });
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Conferência de Caixa{% endblock %}
+
+{% block content %}
+<style>
+    .valor-destaque {
+        font-size: 24px;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .valor-negativo {
+        color: #dc3545;
+    }
+    .badge-status {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-cash-coin"></i> Conferência de Caixa #{{ caixa.id }}</h1>
+        {% if caixa.status == 'aberto' %}
+        <span class="badge bg-success badge-status">ABERTO</span>
+        {% else %}
+        <span class="badge bg-secondary badge-status">FECHADO</span>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <!-- Informações do Caixa -->
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Informações do Caixa</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Abertura:</strong> {{ caixa.data_abertura|date:"d/m/Y H:i" }}</p>
+                    {% if caixa.data_fechamento %}
+                    <p><strong>Fechamento:</strong> {{ caixa.data_fechamento|date:"d/m/Y H:i" }}</p>
+                    {% endif %}
+                    <p><strong>Operador:</strong> {{ caixa.operador }}</p>
+                    <p><strong>Valor Inicial:</strong> R$ {{ caixa.valor_inicial|floatformat:2 }}</p>
+                    {% if caixa.status == 'fechado' %}
+                    <p><strong>Valor Final:</strong> R$ {{ caixa.valor_final|floatformat:2 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Totais por Forma de Pagamento -->
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Totais por Forma de Pagamento</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Dinheiro:</strong> <span class="text-success">R$ {{ total_dinheiro|floatformat:2 }}</span></p>
+                    <p><strong>Débito:</strong> R$ {{ total_debito|floatformat:2 }}</p>
+                    <p><strong>Crédito:</strong> R$ {{ total_credito|floatformat:2 }}</p>
+                    <p><strong>PIX:</strong> R$ {{ total_pix|floatformat:2 }}</p>
+                    <p><strong>Parcelado:</strong> R$ {{ total_parcelado|floatformat:2 }}</p>
+                    <hr>
+                    <h5><strong>Total Vendas:</strong> <span class="text-success">R$ {{ total_vendas|floatformat:2 }}</span></h5>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contagem Física e Conferência -->
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Contagem Física</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Notas de R$ 100</label>
+                            <input type="number" class="form-control" name="notas_100" value="{{ caixa.notas_100 }}" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas de R$ 50</label>
+                            <input type="number" class="form-control" name="notas_50" value="{{ caixa.notas_50 }}" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas de R$ 20</label>
+                            <input type="number" class="form-control" name="notas_20" value="{{ caixa.notas_20 }}" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas de R$ 10</label>
+                            <input type="number" class="form-control" name="notas_10" value="{{ caixa.notas_10 }}" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas de R$ 5</label>
+                            <input type="number" class="form-control" name="notas_5" value="{{ caixa.notas_5 }}" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas de R$ 2</label>
+                            <input type="number" class="form-control" name="notas_2" value="{{ caixa.notas_2 }}" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Moedas</label>
+                            <input type="number" class="form-control" name="moedas" step="0.01" value="{{ caixa.moedas }}" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="2">{{ caixa.observacoes }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-2">Atualizar Contagem</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conferência -->
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header {% if diferenca == 0 %}bg-success{% elif diferenca < 0 %}bg-danger{% else %}bg-warning{% endif %} text-white">
+                    <h5 class="mb-0">Conferência</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Físico:</strong> <span class="valor-destaque">R$ {{ total_fisico|floatformat:2 }}</span></p>
+                    <p><strong>Valor Esperado:</strong> R$ {{ valor_esperado|floatformat:2 }}</p>
+                    <hr>
+                    {% if diferenca == 0 %}
+                    <h4 class="text-success"><i class="bi bi-check-circle"></i> Caixa OK!</h4>
+                    <p class="text-success">Diferença: R$ 0,00</p>
+                    {% elif diferenca < 0 %}
+                    <h4 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Falta no Caixa</h4>
+                    <p class="text-danger valor-destaque">Diferença: R$ {{ diferenca|floatformat:2 }}</p>
+                    {% else %}
+                    <h4 class="text-warning"><i class="bi bi-exclamation-triangle"></i> Sobra no Caixa</h4>
+                    <p class="text-warning valor-destaque">Diferença: +R$ {{ diferenca|floatformat:2 }}</p>
+                    {% endif %}
+                    
+                    {% if caixa.status == 'aberto' %}
+                    <form method="POST" onsubmit="return confirm('Deseja fechar o caixa?')">
+                        {% csrf_token %}
+                        <input type="hidden" name="notas_100" value="{{ caixa.notas_100 }}">
+                        <input type="hidden" name="notas_50" value="{{ caixa.notas_50 }}">
+                        <input type="hidden" name="notas_20" value="{{ caixa.notas_20 }}">
+                        <input type="hidden" name="notas_10" value="{{ caixa.notas_10 }}">
+                        <input type="hidden" name="notas_5" value="{{ caixa.notas_5 }}">
+                        <input type="hidden" name="notas_2" value="{{ caixa.notas_2 }}">
+                        <input type="hidden" name="moedas" value="{{ caixa.moedas }}">
+                        <input type="hidden" name="observacoes" value="{{ caixa.observacoes }}">
+                        <input type="hidden" name="fechar" value="true">
+                        <button type="submit" class="btn btn-danger w-100 mt-3"><i class="bi bi-lock"></i> Fechar Caixa</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Vendas -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Vendas do Período ({{ vendas|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if vendas %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nº</th>
+                                    <th>Cliente</th>
+                                    <th>Data</th>
+                                    <th>Pagamento</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venda in vendas %}
+                                <tr>
+                                    <td>#{{ venda.id }}</td>
+                                    <td>{{ venda.cliente.nome }}</td>
+                                    <td>{{ venda.data_venda|date:"d/m/Y H:i" }}</td>
+                                    <td><span class="badge bg-secondary">{{ venda.get_forma_pagamento_display }}</span></td>
+                                    <td><strong>R$ {{ venda.total|floatformat:2 }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">Nenhuma venda registrada no período.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="{% url 'core:caixa_historico' %}" class="btn btn-secondary">Ver Histórico</a>
+    </div>
+</div>
+{% endblock %}
+

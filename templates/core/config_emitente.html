@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}Emitentes / Filiais{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-building"></i> Emitentes / Filiais</h1>
+        {% if not emitente_edit %}
+        <a href="{% url 'core:configurar_emitente' %}?novo=1" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Novo Emitente
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Tabela de Emitentes Existentes -->
+    {% if emitentes %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <strong><i class="bi bi-list-ul"></i> Empresas Cadastradas</strong>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>CNPJ</th>
+                            <th>Telefone</th>
+                            <th>Status</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in emitentes %}
+                        <tr>
+                            <td><strong>{{ e.nome }}</strong></td>
+                            <td><small>{{ e.cnpj }}</small></td>
+                            <td><small>{{ e.telefone|default:"—" }}</small></td>
+                            <td>
+                                {% if e.ativo %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Ativo</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inativo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    {% if not e.ativo %}
+                                    <form method="post" action="{% url 'core:emitente_set_ativo' e.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-success" title="Definir como Ativo">
+                                            <i class="bi bi-check-circle"></i> Ativar
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <a href="{% url 'core:configurar_emitente' %}?editar={{ e.id }}" class="btn btn-outline-primary" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if not e.ativo %}
+                                    <form method="post" action="{% url 'core:emitente_deletar' e.id %}" class="d-inline"
+                                          onsubmit="return confirm('Deletar este emitente?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger" title="Deletar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Formulário: Novo ou Editar -->
+    {% if form %}
+    <div class="row">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <strong>
+                        <i class="bi bi-pencil-square"></i>
+                        {% if emitente_edit %}Editar Emitente: {{ emitente_edit.nome }}{% else %}Novo Emitente{% endif %}
+                    </strong>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if emitente_edit %}
+                        <input type="hidden" name="emitente_id" value="{{ emitente_edit.id }}">
+                        {% endif %}
+
+                        <h6 class="text-muted mb-3">Informações Básicas</h6>
+
+                        <div class="mb-3">
+                            <label class="form-label">Nome da Empresa *</label>
+                            <input type="text" class="form-control {% if form.nome.errors %}is-invalid{% endif %}"
+                                   name="nome" value="{{ form.nome.value|default:'' }}" required>
+                            {% for e in form.nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">CNPJ *</label>
+                                <input type="text" class="form-control {% if form.cnpj.errors %}is-invalid{% endif %}"
+                                       name="cnpj" value="{{ form.cnpj.value|default:'' }}" required>
+                                {% for e in form.cnpj.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Telefone</label>
+                                <input type="text" class="form-control" name="telefone"
+                                       value="{{ form.telefone.value|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">E-mail</label>
+                            <input type="email" class="form-control" name="email"
+                                   value="{{ form.email.value|default:'' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Endereço Completo *</label>
+                            <textarea class="form-control" name="endereco" rows="3" required>{{ form.endereco.value|default:'' }}</textarea>
+                        </div>
+
+                        <hr>
+                        <h6 class="text-muted mb-3">Configurações de Garantia</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prazo Garantia Celular (dias) *</label>
+                                <input type="number" class="form-control" name="prazo_garantia_celular"
+                                       value="{{ form.prazo_garantia_celular.value|default:90 }}" required min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prazo Garantia Acessório (dias) *</label>
+                                <input type="number" class="form-control" name="prazo_garantia_acessorio"
+                                       value="{{ form.prazo_garantia_acessorio.value|default:30 }}" required min="0">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Texto Padrão da Garantia</label>
+                            <textarea class="form-control" name="texto_garantia" rows="4">{{ form.texto_garantia.value|default:'Garantia contra defeitos de fabricação.' }}</textarea>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> <strong>Importante:</strong>
+                            Apenas o emitente <strong>Ativo</strong> é usado nas notas e comprovantes.
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'core:configurar_emitente' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif not emitentes %}
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i> Nenhum emitente cadastrado.
+        <a href="{% url 'core:configurar_emitente' %}?novo=1" class="alert-link">Cadastrar agora</a>.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

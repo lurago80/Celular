@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Finalizar Venda{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-check-circle"></i> Finalizar Venda #{{ venda.id }}</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Informações da Venda</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Cliente:</strong> {{ venda.cliente.nome }}</p>
+                    <p><strong>CPF:</strong> {{ venda.cliente.cpf }}</p>
+                    <p><strong>Vendedor:</strong> {{ venda.vendedor }}</p>
+                    <p><strong>Data:</strong> {{ venda.data_venda|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Produtos</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Qtd</th>
+                                <th>Preço Unit.</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>{{ item.produto.nome }}</td>
+                                <td>{{ item.quantidade }}</td>
+                                <td>R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                                <td>R$ {{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% if tradeins %}
+                            {% for ti in tradeins %}
+                            <tr class="table-warning">
+                                <td colspan="3"><strong>Trade-in: {{ ti.descricao }}</strong></td>
+                                <td><strong>R$ -{{ ti.valor_desconto|floatformat:2 }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                            <tr class="table-success">
+                                <td colspan="3"><strong>TOTAL</strong></td>
+                                <td><strong>R$ {{ venda.total|floatformat:2 }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Desconto e Forma de Pagamento -->
+            <form method="post" id="form_finalizar">
+            {% csrf_token %}
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Pagamento</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label form-label-sm">Forma de Pagamento</label>
+                            <select name="forma_pagamento" class="form-select" id="id_forma_pagamento_fin">
+                                <option value="dinheiro" {% if venda.forma_pagamento == 'dinheiro' %}selected{% endif %}>Dinheiro</option>
+                                <option value="debito" {% if venda.forma_pagamento == 'debito' %}selected{% endif %}>Débito</option>
+                                <option value="credito" {% if venda.forma_pagamento == 'credito' %}selected{% endif %}>Crédito</option>
+                                <option value="pix" {% if venda.forma_pagamento == 'pix' %}selected{% endif %}>PIX</option>
+                                <option value="parcelado" {% if venda.forma_pagamento == 'parcelado' %}selected{% endif %}>Parcelado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4" id="bloco_parcelas_fin" style="display:none;">
+                            <label class="form-label form-label-sm">Parcelas</label>
+                            <select name="parcelas" class="form-select" id="id_parcelas_fin">
+                                <option value="1" {% if venda.parcelas == 1 %}selected{% endif %}>1x</option>
+                                <option value="2" {% if venda.parcelas == 2 %}selected{% endif %}>2x</option>
+                                <option value="3" {% if venda.parcelas == 3 %}selected{% endif %}>3x</option>
+                                <option value="4" {% if venda.parcelas == 4 %}selected{% endif %}>4x</option>
+                                <option value="5" {% if venda.parcelas == 5 %}selected{% endif %}>5x</option>
+                                <option value="6" {% if venda.parcelas == 6 %}selected{% endif %}>6x</option>
+                                <option value="7" {% if venda.parcelas == 7 %}selected{% endif %}>7x</option>
+                                <option value="8" {% if venda.parcelas == 8 %}selected{% endif %}>8x</option>
+                                <option value="9" {% if venda.parcelas == 9 %}selected{% endif %}>9x</option>
+                                <option value="10" {% if venda.parcelas == 10 %}selected{% endif %}>10x</option>
+                                <option value="11" {% if venda.parcelas == 11 %}selected{% endif %}>11x</option>
+                                <option value="12" {% if venda.parcelas == 12 %}selected{% endif %}>12x</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            {% if venda.desconto_percentual > 0 %}
+                            <label class="form-label form-label-sm">Desconto</label>
+                            <p class="form-control-plaintext">{{ venda.desconto_percentual|floatformat:2 }}%
+                               <span class="text-danger">(-R$ {{ venda.desconto|floatformat:2 }})</span>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div id="info_parcela_fin" class="form-text text-success fw-bold mt-1"></div>
+                </div>
+            </div>
+
+                <div class="card mb-3">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0">IMEI dos Celulares</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for item in itens %}
+                        {% if item.produto.tipo == 'celular' %}
+                        <div class="mb-3">
+                            <label for="imei_{{ item.id }}" class="form-label">
+                                IMEI para {{ item.produto.nome }} *
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                name="imei_{{ item.id }}" 
+                                id="imei_{{ item.id }}"
+                                pattern="\d{15}"
+                                maxlength="15"
+                                placeholder="Digite o IMEI (15 dígitos)"
+                                required
+                            >
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{% url 'core:dashboard' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </a>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle"></i> Finalizar Venda
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Resumo da Venda</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-center mb-3">R$ {{ venda.total|floatformat:2 }}</h3>
+                    <hr>
+                    <p><strong>Itens:</strong> {{ itens|length }}</p>
+                    {% if tradeins %}
+                    <p><strong>Trade-ins:</strong> {{ tradeins|length }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var totalVenda = parseFloat('{{ venda.total|floatformat:2 }}'.replace(',', '.'));
+    var selPag = document.getElementById('id_forma_pagamento_fin');
+    var blocoParcelas = document.getElementById('bloco_parcelas_fin');
+    var selParcelas = document.getElementById('id_parcelas_fin');
+    var infoParcela = document.getElementById('info_parcela_fin');
+
+    function atualizarParcelas() {
+        var fp = selPag.value;
+        if (fp === 'credito' || fp === 'parcelado') {
+            blocoParcelas.style.display = '';
+        } else {
+            blocoParcelas.style.display = 'none';
+            selParcelas.value = '1';
+            infoParcela.textContent = '';
+            return;
+        }
+        calcularParcela();
+    }
+
+    function calcularParcela() {
+        var n = parseInt(selParcelas.value);
+        if (n > 1 && totalVenda > 0) {
+            var vlrParcela = (totalVenda / n).toFixed(2).replace('.', ',');
+            infoParcela.textContent = n + 'x de R$ ' + vlrParcela;
+        } else {
+            infoParcela.textContent = '';
+        }
+    }
+
+    selPag.addEventListener('change', atualizarParcelas);
+    selParcelas.addEventListener('change', calcularParcela);
+    atualizarParcelas();
+});
+</script>
+{% endblock %}
+

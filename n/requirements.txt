@@ -1,0 +1,4 @@
+django>=4.2,<6.0
+weasyprint>=60.0
+pillow>=10.0
+

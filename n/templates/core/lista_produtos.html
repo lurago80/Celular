@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Produtos{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-box-seam"></i> Produtos</h1>
+    </div>
+    <a href="{% url 'core:cadastrar_produto' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Novo Produto
+    </a>
+</div>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" name="busca" class="form-control" placeholder="Nome, marca ou modelo..." value="{{ busca }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tipo</label>
+                    <select name="tipo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="celular" {% if tipo == 'celular' %}selected{% endif %}>Celular</option>
+                        <option value="acessorio" {% if tipo == 'acessorio' %}selected{% endif %}>Acessório</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estoque</label>
+                    <select name="estoque_critico" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="1" {% if estoque_critico == '1' %}selected{% endif %}>&#9888; Estoque Crítico</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'core:listar_produtos' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x"></i> Limpar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if page_obj %}
+            <p class="text-muted small mb-2">{{ page_obj.paginator.count }} produto(s)</p>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Marca</th>
+                            <th>Custo</th>
+                            <th>Venda</th>
+                            <th>Lucro</th>
+                            <th>Estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produto in page_obj %}
+                        <tr{% if produto.estoque <= produto.estoque_minimo %} class="table-warning"{% endif %}>
+                            <td>
+                                {% if produto.foto %}
+                                <img src="{{ produto.foto.url }}" width="36" height="36"
+                                     class="rounded me-2 object-fit-cover border"
+                                     style="vertical-align:middle;">
+                                {% endif %}
+                                {{ produto.nome }}
+                                {% if produto.codigo_barras %}
+                                <br><small class="text-muted font-monospace">{{ produto.codigo_barras }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if produto.tipo == 'celular' %}
+                                    <span class="badge bg-info">Celular</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Acessório</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ produto.marca|default:"-" }}</td>
+                            <td>R$ {{ produto.preco_custo|floatformat:2 }}</td>
+                            <td><strong>R$ {{ produto.preco_venda|floatformat:2 }}</strong></td>
+                            <td>
+                                <span class="badge bg-success">R$ {{ produto.lucro|floatformat:2 }}</span>
+                                <br><small class="text-muted">{{ produto.margem_lucro|floatformat:1 }}%</small>
+                            </td>
+                            <td>
+                                {% if produto.estoque == 0 %}
+                                    <span class="badge bg-danger">0 <i class="bi bi-exclamation-triangle"></i></span>
+                                {% elif produto.estoque <= produto.estoque_minimo %}
+                                    <span class="badge bg-warning text-dark">{{ produto.estoque }} &#9888;</span>
+                                    <br><small class="text-muted">Mín: {{ produto.estoque_minimo }}</small>
+                                {% else %}
+                                    <span class="badge bg-success">{{ produto.estoque }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                <a href="{% url 'core:editar_produto' produto.id %}" class="btn btn-outline-secondary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'core:serial_listar' produto.id %}" class="btn btn-outline-info" title="Seriais / IMEI">
+                                    <i class="bi bi-upc"></i>
+                                </a>
+                                <a href="{% url 'core:barcode_produto' produto.id %}" class="btn btn-outline-dark" title="Código de Barras" target="_blank">
+                                    <i class="bi bi-barcode"></i>
+                                </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% include 'core/_paginacao.html' %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-box-seam" style="font-size:64px;color:#ccc;"></i>
+                <h4 class="mt-3 text-muted">Nenhum produto encontrado</h4>
+                {% if busca or tipo or estoque_critico %}
+                <a href="{% url 'core:listar_produtos' %}" class="btn btn-outline-secondary mt-2">Limpar filtros</a>
+                {% else %}
+                <a href="{% url 'core:cadastrar_produto' %}" class="btn btn-success mt-2"><i class="bi bi-plus-circle"></i> Cadastrar Produto</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+

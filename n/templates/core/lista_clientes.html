@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Clientes{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-people"></i> Clientes</h1>
+    </div>
+    <a href="{% url 'core:cadastrar_cliente' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Novo Cliente
+    </a>
+</div>
+
+    <!-- Busca -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" name="busca" class="form-control" placeholder="Nome, CPF, telefone ou e-mail..." value="{{ busca }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Buscar</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'core:listar_clientes' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x"></i> Limpar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if page_obj %}
+            <p class="text-muted small mb-2">{{ page_obj.paginator.count }} cliente(s) encontrado(s)</p>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>E-mail</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in page_obj %}
+                        <tr>
+                            <td><a href="{% url 'core:detalhe_cliente' cliente.id %}">{{ cliente.nome }}</a></td>
+                            <td>{{ cliente.cpf }}</td>
+                            <td>{{ cliente.telefone }}</td>
+                            <td>{{ cliente.email|default:"-" }}</td>
+                            <td>
+                                <a href="{% url 'core:detalhe_cliente' cliente.id %}" class="btn btn-sm btn-outline-primary" title="Detalhe">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'core:editar_cliente' cliente.id %}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% include 'core/_paginacao.html' %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-people" style="font-size:64px;color:#ccc;"></i>
+                <h4 class="mt-3 text-muted">Nenhum cliente encontrado</h4>
+                {% if busca %}
+                <a href="{% url 'core:listar_clientes' %}" class="btn btn-outline-secondary mt-2">Limpar filtro</a>
+                {% else %}
+                <a href="{% url 'core:cadastrar_cliente' %}" class="btn btn-primary mt-2"><i class="bi bi-person-plus"></i> Cadastrar Primeiro Cliente</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+

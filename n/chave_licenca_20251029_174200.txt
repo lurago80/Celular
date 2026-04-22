@@ -1,0 +1,16 @@
+CHAVE DE LICENÇA - SISTEMA DE GESTÃO
+Loja de Celulares
+==================================================
+
+Chave: 7MOB-S2YQ-08Q4-TUPR-7E7E
+Data de geração: 29/10/2025 17:42:00
+Validade: 90 dias (3 meses)
+
+==================================================
+
+Instruções:
+1. Envie esta chave para o cliente
+2. O cliente deve acessar o sistema
+3. Quando aparecer a tela de 'Licença Expirada'
+4. Cole a chave no campo de ativação
+5. Clique em 'Ativar Licença'

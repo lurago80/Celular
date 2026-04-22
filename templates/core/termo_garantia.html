@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Termo de Garantia #{{ garantia.id }}</title>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9.5pt;
+            margin: 10px;
+        }
+        
+        .no-print {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        
+        .btn-print {
+            background: #ffc107;
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .btn-print:hover {
+            background: #e0a800;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .header h2 {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .info-box {
+            background: #f8f9fa;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+        .info-box h4 {
+            margin-bottom: 6px;
+            color: #000;
+            text-transform: uppercase;
+            font-size: 9.5pt;
+        }
+        .info-box p { margin: 2px 0; }
+        .imei-box {
+            background: #fff3cd;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+        }
+        .imei-box h3 {
+            margin-bottom: 6px;
+            color: #856404;
+            font-size: 11pt;
+            text-transform: uppercase;
+        }
+        .termos {
+            margin-top: 14px;
+        }
+        .termos p, .termos li { margin: 3px 0; line-height: 1.4; }
+        .signature {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .signature-box {
+            width: 45%;
+            text-align: center;
+            border-top: 1px solid #000;
+            padding-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="background:#1e293b;color:#f1f5f9;padding:18px 24px;border-radius:10px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span style="font-size:1.2rem;">🛡️</span>
+            <strong style="font-size:1rem;">Configurar Prazo de Garantia</strong>
+            <span style="margin-left:auto;background:#334155;padding:4px 12px;border-radius:6px;font-size:.85rem;">
+                Prazo atual: <strong>{{ prazo_exibicao }} dias</strong>
+                &nbsp;|&nbsp; Válido até: <strong>{{ data_fim_exibicao|date:"d/m/Y" }}</strong>
+            </span>
+        </div>
+        <form method="get" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <label style="font-size:.75rem;color:#94a3b8;">Presets rápidos</label>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;" id="presets-container">
+                    <a href="?prazo_dias=30"  class="btn-preset {% if prazo_exibicao == 30  %}ativo{% endif %}">30 dias</a>
+                    <a href="?prazo_dias=60"  class="btn-preset {% if prazo_exibicao == 60  %}ativo{% endif %}">60 dias</a>
+                    <a href="?prazo_dias=90"  class="btn-preset {% if prazo_exibicao == 90  %}ativo{% endif %}">90 dias</a>
+                    <a href="?prazo_dias=180" class="btn-preset {% if prazo_exibicao == 180 %}ativo{% endif %}">6 meses</a>
+                    <a href="?prazo_dias=365" class="btn-preset {% if prazo_exibicao == 365 %}ativo{% endif %}">1 ano</a>
+                    <a href="?prazo_dias=730" class="btn-preset {% if prazo_exibicao == 730 %}ativo{% endif %}">2 anos</a>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <label for="prazo_custom" style="font-size:.75rem;color:#94a3b8;">Personalizado (dias)</label>
+                <div style="display:flex;gap:6px;">
+                    <input type="number" id="prazo_custom" name="prazo_dias"
+                           min="1" max="3650" placeholder="Ex: 120"
+                           value="{{ prazo_exibicao }}"
+                           style="width:100px;padding:6px 10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#f1f5f9;font-size:.9rem;">
+                    <button type="submit" style="padding:6px 14px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.9rem;">Aplicar</button>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <label for="garantia_apple" style="font-size:.75rem;color:#94a3b8;">🍎 Garantia Apple ativo até</label>
+                <input type="date" id="garantia_apple" name="garantia_apple"
+                       value="{{ garantia_apple }}"
+                       style="padding:6px 10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#f1f5f9;font-size:.9rem;">
+            </div>
+        </form>
+        <style>
+            .btn-preset {
+                padding:5px 12px;border-radius:6px;background:#334155;color:#cbd5e1;
+                text-decoration:none;font-size:.82rem;transition:background .15s;
+            }
+            .btn-preset:hover { background:#4f46e5;color:#fff; }
+            .btn-preset.ativo { background:#6366f1;color:#fff;font-weight:600; }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Preserva garantia_apple nos presets rápidos
+                var appleInput = document.getElementById('garantia_apple');
+                var presets = document.querySelectorAll('#presets-container .btn-preset');
+                presets.forEach(function(link) {
+                    link.addEventListener('click', function(e) {
+                        var appleVal = appleInput ? appleInput.value : '';
+                        var url = new URL(link.href, window.location.href);
+                        if (appleVal) url.searchParams.set('garantia_apple', appleVal);
+                        else url.searchParams.delete('garantia_apple');
+                        link.href = url.toString();
+                    });
+                });
+
+                // Auto-print se vier com ?auto_print=1
+                if (new URLSearchParams(window.location.search).get('auto_print') === '1') {
+                    window.print();
+                }
+            });
+
+            function aplicarEImprimir() {
+                var prazo = document.getElementById('prazo_custom').value;
+                var apple = document.getElementById('garantia_apple').value;
+                var url = new URL(window.location.href);
+                if (prazo) url.searchParams.set('prazo_dias', prazo);
+                if (apple) url.searchParams.set('garantia_apple', apple);
+                else url.searchParams.delete('garantia_apple');
+                url.searchParams.set('auto_print', '1');
+                window.location.href = url.toString();
+            }
+        </script>
+        <div style="margin-top:14px;display:flex;gap:8px;">
+            <button class="btn-print" onclick="aplicarEImprimir()">🖨️ Imprimir</button>
+            <button class="btn-print" onclick="window.close()">❌ Fechar</button>
+        </div>
+    </div>
+    
+    <div class="header">
+        <h2>TERMO DE GARANTIA</h2>
+        {% if emitente %}
+        <p><strong>{{ emitente.nome }}</strong></p>
+        <p>{{ emitente.endereco }}</p>
+        {% endif %}
+    </div>
+
+    <div class="info-box">
+        <h4>CLIENTE</h4>
+        <p><strong>Nome:</strong> {{ cliente.nome }}</p>
+        <p><strong>CPF:</strong> {{ cliente.cpf }}</p>
+        <p><strong>Endereço:</strong> {{ cliente.endereco }}</p>
+    </div>
+
+    <div class="info-box">
+        <h4>PRODUTO</h4>
+        <p><strong>Descrição:</strong> {{ garantia.produto.nome }}</p>
+        {% if garantia.produto.marca %}<p><strong>Marca:</strong> {{ garantia.produto.marca }}</p>{% endif %}
+        <p><strong>Quantidade:</strong> {{ garantia.item.quantidade }} unidade(s)</p>
+        <p><strong>Venda Nº:</strong> #{{ venda.id }} em {{ venda.data_venda|date:"d/m/Y" }}</p>
+    </div>
+
+    {% if garantia.imei %}
+    <div class="imei-box">
+        <h3>IMEI</h3>
+        <p style="font-size: 13pt; font-weight: bold;">{{ garantia.imei }}</p>
+        {% if garantia.imei2 %}
+        <p style="font-size: 10.5pt; color: #555;">IMEI 2: {{ garantia.imei2 }}</p>
+        {% endif %}
+        {% if garantia.item.serial_produto %}
+        <p style="font-size: 9.5pt; color: #777;">S/N: {{ garantia.item.serial_produto.serial }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="info-box">
+        <h4>PERÍODO DE GARANTIA</h4>
+        <p><strong>Data de Início:</strong> {{ garantia.data_inicio|date:"d/m/Y" }}</p>
+        {% if garantia_apple %}
+        <p><strong>Data de Término:</strong> {{ garantia_apple|slice:"8:10" }}/{{ garantia_apple|slice:"5:7" }}/{{ garantia_apple|slice:":4" }}</p>
+        <p style="margin-top:6px;">
+            <strong>🍎 Garantia Apple ativo até:</strong>
+            <span style="font-weight:bold;">{{ garantia_apple|slice:"8:10" }}/{{ garantia_apple|slice:"5:7" }}/{{ garantia_apple|slice:":4" }}</span>
+        </p>
+        {% else %}
+        <p><strong>Data de Término:</strong> {{ data_fim_exibicao|date:"d/m/Y" }}</p>
+        <p><strong>Prazo:</strong> {{ prazo_exibicao }} dias</p>
+        {% endif %}
+    </div>
+
+    <div class="termos">
+        <h4 style="text-transform: uppercase; text-align: center; margin-bottom: 10px;">TERMOS E CONDIÇÕES DA GARANTIA</h4>
+        
+        <div style="text-align: justify; line-height: 1.5;">
+            <p><strong>1. DIRETOS GARANTIDOS PELO CÓDIGO DE DEFESA DO CONSUMIDOR (CDC):</strong></p>
+            <p>Conforme estabelecido no artigo 26 do CDC, o produto possui garantia legal de 90 (noventa) dias para vícios aparentes ou de fácil constatação, contados a partir da entrega do produto. A garantia comercial aqui oferecida é independente da garantia legal e não exclui os direitos previstos no CDC.</p>
+            
+            <p><strong>2. COBERTURA DA GARANTIA COMERCIAL:</strong></p>
+            <p>A presente garantia cobre defeitos de fabricação e vícios do produto que o tornem impróprio ou inadequado ao consumo a que se destina, ou lhe diminuam o valor. Serão reparados ou substituídos gratuitamente:</p>
+            <ul>
+                <li>Defeitos de fabricação do aparelho celular;</li>
+                <li>Danos causados durante o processo de manufatura;</li>
+                <li>Componentes de fábrica defeituosos;</li>
+                <li>Problemas de hardware não causados por uso inadequado;</li>
+                <li>Defeitos em tela (quando decorrentes de falha de fabricação).</li>
+            </ul>
+            
+            <p><strong>3. NÃO COBERTO PELA GARANTIA:</strong></p>
+            <p>A garantia não cobre os seguintes casos:</p>
+            <ul>
+                <li>Danos causados por uso inadequado ou não conforme o manual de instruções;</li>
+                <li>Quedas, impactos ou colisões;</li>
+                <li>Danos causados por água, umidade ou líquidos (dentro do chassis não permitidos);</li>
+                <li>Superaquecimento do aparelho;</li>
+                <li>Danos causados por tentativas de reparo por terceiros não autorizados;</li>
+                <li>Modificações, customizações ou alterações no software ou hardware;</li>
+                <li>Desgaste natural de componentes como bateria (após garantia específica do fabricante);</li>
+                <li>Danos em acessórios (carregador, cabo, case, etc.);</li>
+                <li>Problemas causados por instalação de aplicativos de terceiros;</li>
+                <li>Perda de dados ou configurações.</li>
+            </ul>
+            
+            <p><strong>4. PRAZO DE GARANTIA:</strong></p>
+            <p><strong>Garantia Legal:</strong> 90 dias contados da data de entrega (previsto no CDC - Artigo 26).</p>
+            <p><strong>Garantia Comercial:</strong> {{ prazo_exibicao }} dias, de {{ garantia.data_inicio|date:"d/m/Y" }} a {{ data_fim_exibicao|date:"d/m/Y" }}.</p>
+            {% if garantia_apple %}
+            <p><strong>Garantia Apple:</strong> Ativa até {{ garantia_apple|slice:"8:10" }}/{{ garantia_apple|slice:"5:7" }}/{{ garantia_apple|slice:":4" }}.</p>
+            {% endif %}
+            <p>A garantia comercial não exclui a garantia legal de 90 dias.</p>
+            
+            <p><strong>5. PROCEDIMENTOS PARA ACIONAR A GARANTIA:</strong></p>
+            <ul>
+                <li>Entre em contato conosco imediatamente após detectar o problema;</li>
+                <li>Apresente este TERMO DE GARANTIA e o comprovante de compra;</li>
+                <li>Apresente o produto com todos os acessórios originais (cabo, carregador, caixa);</li>
+                <li>O produto deve conter a etiqueta de garantia intacta;</li>
+                <li>Não remova etiquetas, lacres ou adesivos do produto.</li>
+            </ul>
+            
+            <p><strong>6. AÇÕES E REPAROS:</strong></p>
+            <p>Ao acionar a garantia, a empresa se compromete a:</p>
+            <ul>
+                <li>Verificar o problema em até 5 (cinco) dias úteis;</li>
+                <li>Reparar o defeito sem custo adicional ao cliente;</li>
+                <li>Substituir o produto, se o reparo não for possível;</li>
+                <li>Devolver o crédito, se nem reparo nem substituição forem viáveis;</li>
+                <li>Documentar todos os procedimentos realizados.</li>
+            </ul>
+            
+            <p><strong>7. SITUAÇÕES ESPECIAIS:</strong></p>
+            <ul>
+                <li><strong>Bateria:</strong> Prazo de garantia conforme especificação do fabricante original (geralmente 6 meses);</li>
+                <li><strong>Tela:</strong> Garantia contra defeitos de fabricação durante o prazo contratual;</li>
+                <li><strong>IMEI:</strong> O número {{ garantia.imei|default:"NÃO INFORMADO" }} está registrado e vinculado a este termo;</li>
+                <li><strong>Produto usado/Recondicionado:</strong> Prazo reduzido em 50% sobre o prazo de garantia.</li>
+            </ul>
+            
+            <p><strong>8. CANCELAMENTO E ARREPENDIMENTO:</strong></p>
+            <p>Conforme CDC (Artigo 49), o cliente tem até 7 (sete) dias corridos, contados da entrega do produto, para se arrepender da compra, sem qualquer custo ou ônus. Após esse prazo, a garantia entra em vigor conforme os termos acima.</p>
+            
+            <p><strong>9. FORO DE DISPUTAS:</strong></p>
+            <p>As questões referentes a este termo serão resolvidas preferencialmente por negociação direta. Na impossibilidade, o foro competente será o da comarca onde se encontra a sede da empresa.</p>
+            
+            <p><strong>10. CONSERVAÇÃO DO DOCUMENTO:</strong></p>
+            <p>Conserve este termo em local seguro durante todo o período de garantia. Este documento é indispensável para acionamento dos direitos garantidos.</p>
+            
+            {% if garantia.texto %}
+            <div style="background: #fff3cd; padding: 15px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                <p><strong>Observação Especial:</strong></p>
+                <p>{{ garantia.texto }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="signature">
+        <div class="signature-box">
+            <p><strong>Cliente</strong></p>
+            <br><br>
+            <p>_________________________________</p>
+            <p>{{ cliente.nome }}</p>
+        </div>
+        <div class="signature-box">
+            <p><strong>Estabelecimento</strong></p>
+            <br><br>
+            <p>_________________________________</p>
+            {% if emitente %}<p>{{ emitente.nome }}</p>{% endif %}
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; padding-top: 12px; border-top: 1px solid #ccc; font-size: 8.5pt; color: #666;">
+        <p><strong>DOCUMENTO GERADO AUTOMATICAMENTE PELO SISTEMA DE GESTÃO</strong></p>
+        <p>Data de emissão: {{ "now"|date:"d/m/Y" }} às {{ "now"|date:"H:i" }}</p>
+        {% if emitente %}
+        <p>{{ emitente.nome }} - CNPJ: {{ emitente.cnpj }}</p>
+        <p>{{ emitente.endereco }} - Tel: {{ emitente.telefone }}</p>
+        {% endif %}
+        <p style="margin-top: 15px; font-size: 9pt;">Este documento é válido enquanto o produto estiver dentro do período de garantia. Conserve este termo em local seguro.</p>
+        <p style="font-size: 9pt;">Em caso de dúvidas, entre em contato conosco imediatamente.</p>
+    </div>
+</body>
+</html>
+

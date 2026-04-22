@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}{% if produto %}Editar Produto{% else %}Cadastrar Produto{% endif %}{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width:900px">
+    <h1 class="mb-4">
+        <i class="bi bi-box-seam"></i>
+        {% if produto %}Editar{% else %}Cadastrar{% endif %} Produto
+    </h1>
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Dados do Produto</h5>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+            {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }} alert-dismissible fade show">
+                {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>{% endfor %}{% endif %}
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="row">
+                {% for field in form %}
+                {% if field.name == 'imei' or field.name == 'imei2' %}
+                {# campos IMEI: renderizados dentro do bloco especial abaixo #}
+                {% else %}
+                <div class="col-md-{% if field.name == 'nome' or field.name == 'descricao' or field.name == 'foto' %}12{% else %}6{% endif %} mb-3">
+                    <label class="form-label fw-semibold">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endfor %}
+                </div>
+
+                {# Bloco IMEI — visível somente quando tipo = celular #}
+                <div id="bloco-imei" class="border rounded p-3 mb-3 bg-light" style="display:none">
+                    <h6 class="fw-semibold text-success mb-3"><i class="bi bi-phone"></i> IMEIs do Celular</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">{{ form.imei.label }}</label>
+                            {{ form.imei }}
+                            {% for error in form.imei.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">{{ form.imei2.label }}</label>
+                            {{ form.imei2 }}
+                            {% for error in form.imei2.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'core:listar_produtos' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const tipoSelect = document.getElementById('id_tipo');
+    const blocoImei  = document.getElementById('bloco-imei');
+
+    function toggleImei() {
+        const isCelular = tipoSelect && tipoSelect.value === 'celular';
+        if (blocoImei) blocoImei.style.display = isCelular ? '' : 'none';
+    }
+
+    if (tipoSelect) {
+        tipoSelect.addEventListener('change', toggleImei);
+        toggleImei(); // aplica ao carregar a página (edição de produto existente)
+    }
+})();
+</script>
+{% endblock %}
+

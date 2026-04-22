@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Backup e Restore{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-database"></i> Backup e Restore</h1>
+        <a href="{% url 'core:backup_criar' %}" class="btn btn-success">
+            <i class="bi bi-cloud-upload"></i> Criar Backup
+        </a>
+    </div>
+
+    <!-- Alerta -->
+    <div class="alert alert-warning" role="alert">
+        <h6><i class="bi bi-exclamation-triangle"></i> Importante:</h6>
+        <ul class="mb-0">
+            <li>Backups incluem TODOS os dados do sistema (clientes, produtos, vendas, etc.)</li>
+            <li>Antes de restaurar, o sistema cria automaticamente um backup do estado atual</li>
+            <li>Mantenha backups em local seguro e faça cópias externas regularmente</li>
+            <li>Recomendamos fazer backup diariamente</li>
+        </ul>
+    </div>
+
+    {% if backups %}
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-archive"></i> Backups Disponíveis ({{ backups|length }})</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Arquivo</th>
+                            <th>Data</th>
+                            <th>Tamanho</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for backup in backups %}
+                        <tr>
+                            <td>
+                                <input type="hidden" name="backup_name" value="{{ backup.name }}">
+                                <strong>{{ backup.name }}</strong>
+                            </td>
+                            <td>{{ backup.date|date:"d/m/Y H:i" }}</td>
+                            <td>{{ backup.size|filesizeformat }}</td>
+                            <td>
+                                <a href="{% url 'core:backup_download' backup.name %}" class="btn btn-sm btn-primary" title="Baixar">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                                <button onclick="confirmarRestauracao(this)" class="btn btn-sm btn-warning" title="Restaurar">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                                <a href="{% url 'core:backup_deletar' backup.name %}" class="btn btn-sm btn-danger" title="Excluir" 
+                                   onclick="return confirm('Tem certeza que deseja excluir este backup?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 64px; color: #ccc;"></i>
+            <h4 class="mt-3 text-muted">Nenhum backup encontrado</h4>
+            <p class="text-muted">Crie seu primeiro backup para proteger seus dados</p>
+            <a href="{% url 'core:backup_criar' %}" class="btn btn-success mt-3">
+                <i class="bi bi-cloud-upload"></i> Criar Primeiro Backup
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Formulário oculto para restaurar -->
+    <form id="formRestaurar" method="POST" action="{% url 'core:backup_restaurar' %}" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="backup_file" id="backup_file_input">
+    </form>
+</div>
+
+<script>
+function confirmarRestauracao(button) {
+    if (confirm('⚠️ ATENÇÃO! Restaurar este backup substituirá TODOS os dados atuais.\n\nTem certeza que deseja continuar?')) {
+        const row = button.closest('tr');
+        const backupName = row.querySelector('input[name="backup_name"]').value;
+        document.getElementById('backup_file_input').value = backupName;
+        document.getElementById('formRestaurar').submit();
+    }
+}
+</script>
+{% endblock %}
+

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastrar Usuário{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-person-plus-fill"></i> Cadastrar Usuário</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Informações do Usuário</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Usuário (Login) *</label>
+                                    <input type="text" class="form-control" id="username" name="username" 
+                                           placeholder="Ex: joao.silva" required>
+                                    <small class="form-text text-muted">Nome único para acesso ao sistema</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">E-mail</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           placeholder="usuario@exemplo.com">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">Nome</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                                           placeholder="Primeiro nome">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">Sobrenome</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                                           placeholder="Sobrenome">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Senha *</label>
+                                    <input type="password" class="form-control" id="password" name="password" 
+                                           required minlength="6">
+                                    <small class="form-text text-muted">Mínimo de 6 caracteres</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password_confirm" class="form-label">Confirmar Senha *</label>
+                                    <input type="password" class="form-control" id="password_confirm" 
+                                           name="password_confirm" required minlength="6">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="mb-3">
+                            <h6>Permissões</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff">
+                                <label class="form-check-label" for="is_staff">
+                                    <strong>Staff</strong> - Acesso ao painel administrativo (Django Admin)
+                                </label>
+                            </div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="is_superuser" name="is_superuser">
+                                <label class="form-check-label" for="is_superuser">
+                                    <strong>Superusuário</strong> - Acesso completo ao sistema (todas as permissões)
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> 
+                                Superusuários têm acesso a todas as funcionalidades e configurações do sistema.
+                            </small>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'core:listar_usuarios' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Cadastrar Usuário
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Informações</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Campos obrigatórios:</strong></p>
+                    <ul class="small">
+                        <li>Usuário (Login)</li>
+                        <li>Senha</li>
+                        <li>Confirmar Senha</li>
+                    </ul>
+                    <hr>
+                    <p class="small"><strong>Permissões:</strong></p>
+                    <ul class="small">
+                        <li><strong>Staff:</strong> Acesso ao Django Admin</li>
+                        <li><strong>Superusuário:</strong> Todas as permissões</li>
+                    </ul>
+                    <p class="small text-muted mt-3">
+                        O usuário será criado e poderá fazer login imediatamente após o cadastro.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação de senha em tempo real
+document.getElementById('password_confirm').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const passwordConfirm = this.value;
+    
+    if (password !== passwordConfirm) {
+        this.setCustomValidity('As senhas não coincidem!');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+document.getElementById('password').addEventListener('input', function() {
+    const passwordConfirm = document.getElementById('password_confirm');
+    if (passwordConfirm.value) {
+        passwordConfirm.dispatchEvent(new Event('input'));
+    }
+});
+</script>
+{% endblock %}
+

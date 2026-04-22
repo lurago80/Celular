@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Relatório de Lucro{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-graph-up-arrow"></i> Relatório de Lucro</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'core:exportar_excel' 'vendas' %}" class="btn btn-success">
+                <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Data Início</label>
+                    <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Data Fim</label>
+                    <input type="date" name="data_fim" class="form-control" value="{{ data_fim|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filtrar</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'core:relatorio_lucro' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x"></i> Limpar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cards de resumo -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="text-muted small mb-1">Receita Total</div>
+                    <div class="fs-3 fw-bold text-primary">R$ {{ receita_total|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="text-muted small mb-1">Custo Total</div>
+                    <div class="fs-3 fw-bold text-danger">R$ {{ custo_total|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="text-muted small mb-1">Lucro Bruto</div>
+                    <div class="fs-3 fw-bold text-success">R$ {{ lucro_total|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="text-muted small mb-1">Margem Média</div>
+                    <div class="fs-3 fw-bold text-warning">{{ margem_media|floatformat:1 }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela detalhada -->
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h6 class="mb-0">
+                Detalhamento por Venda
+                <small class="text-muted">{{ data_inicio|date:"d/m/Y" }} → {{ data_fim|date:"d/m/Y" }}</small>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            {% if linhas %}
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Venda</th>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Receita</th>
+                            <th>Custo</th>
+                            <th>Lucro Bruto</th>
+                            <th>Margem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for linha in linhas %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'core:venda_visualizar' linha.venda.id %}">#{{ linha.venda.id }}</a>
+                            </td>
+                            <td>{{ linha.venda.data_venda|date:"d/m/Y" }}</td>
+                            <td>{{ linha.venda.cliente.nome }}</td>
+                            <td class="text-primary fw-semibold">R$ {{ linha.receita|floatformat:2 }}</td>
+                            <td class="text-danger">R$ {{ linha.custo|floatformat:2 }}</td>
+                            <td class="text-success fw-bold">R$ {{ linha.lucro|floatformat:2 }}</td>
+                            <td>
+                                <span class="badge {% if linha.margem >= 20 %}bg-success{% elif linha.margem >= 10 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                    {{ linha.margem|floatformat:1 }}%
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-secondary fw-bold">
+                        <tr>
+                            <td colspan="3">Totais</td>
+                            <td class="text-primary">R$ {{ receita_total|floatformat:2 }}</td>
+                            <td class="text-danger">R$ {{ custo_total|floatformat:2 }}</td>
+                            <td class="text-success">R$ {{ lucro_total|floatformat:2 }}</td>
+                            <td>{{ margem_media|floatformat:1 }}%</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-graph-up-arrow" style="font-size:64px;opacity:.3;"></i>
+                <p class="mt-3">Nenhuma venda encontrada no período selecionado.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

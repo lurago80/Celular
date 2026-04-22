@@ -1,0 +1,5 @@
+django>=4.2,<4.3
+pillow>=9.5,<10.0
+# PDF engine is optional on Windows 7; skipped for Python 3.8 on Windows.
+weasyprint>=60.0,<62.0; platform_system != "Windows" or python_version >= "3.9"
+

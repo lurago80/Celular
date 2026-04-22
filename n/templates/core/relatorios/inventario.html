@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventário{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-box-seam"></i> Inventário</h1>
+        <button class="btn btn-primary" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir</button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Tipo</label>
+                    <select name="tipo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="celular" {% if tipo == 'celular' %}selected{% endif %}>Celular</option>
+                        <option value="acessorio" {% if tipo == 'acessorio' %}selected{% endif %}>Acessório</option>
+                        <option value="outro" {% if tipo == 'outro' %}selected{% endif %}>Outro</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" name="busca" class="form-control" placeholder="Nome ou marca..." value="{{ busca }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6>Total de Produtos</h6>
+                    <h2>{{ total_produtos }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6>Estoque Total</h6>
+                    <h2>{{ estoque_total }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6>Valor em Estoque</h6>
+                    <h2>R$ {{ valor_total|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h6>Produtos Zerados</h6>
+                    <h2>{{ produtos_zerados }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Cód.</th>
+                            <th>Nome</th>
+                            <th>Marca</th>
+                            <th>Tipo</th>
+                            <th>Estoque</th>
+                            <th>Custo Unit.</th>
+                            <th>Venda Unit.</th>
+                            <th>Total em Estoque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produto in produtos %}
+                        <tr>
+                            <td>{{ produto.id }}</td>
+                            <td><strong>{{ produto.nome }}</strong></td>
+                            <td>{{ produto.marca|default:"-" }}</td>
+                            <td>{{ produto.get_tipo_display }}</td>
+                            <td>
+                                {% if produto.estoque == 0 %}
+                                <span class="badge bg-danger">{{ produto.estoque }}</span>
+                                {% elif produto.estoque < 5 %}
+                                <span class="badge bg-warning">{{ produto.estoque }}</span>
+                                {% else %}
+                                <span class="badge bg-success">{{ produto.estoque }}</span>
+                                {% endif %}
+                            </td>
+                            <td>R$ {{ produto.preco_custo|floatformat:2 }}</td>
+                            <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
+                            <td><strong>R$ {{ produto.preco_custo|floatformat:2 }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">Nenhum produto encontrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

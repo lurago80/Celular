@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Produtos Vendidos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-currency-dollar"></i> Produtos Vendidos</h1>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Data Início</label>
+                    <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Data Fim</label>
+                    <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Produto</label>
+                    <select name="produto" class="form-select">
+                        <option value="">Todos</option>
+                        {% for produto in produtos %}
+                        <option value="{{ produto.id }}" {% if produto.id == produto_id|add:0 %}selected{% endif %}>{{ produto.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Totais -->
+    <div class="card mb-3 bg-light">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Total em Vendas: <span class="text-success">R$ {{ total_vendas|floatformat:2 }}</span></h5>
+                </div>
+                <div class="col-md-6">
+                    <h5>Quantidade Total: <span class="text-success">{{ total_quantidade }}</span></h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Produto</th>
+                            <th>Qtd.</th>
+                            <th>Preço Unit.</th>
+                            <th>Subtotal</th>
+                            <th>Cliente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in itens %}
+                        <tr>
+                            <td>{{ item.venda.data_venda|date:"d/m/Y H:i" }}</td>
+                            <td>{{ item.produto.nome }}</td>
+                            <td>{{ item.quantidade }}</td>
+                            <td>R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                            <td>R$ {{ item.subtotal|floatformat:2 }}</td>
+                            <td>{{ item.venda.cliente.nome }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Nenhuma venda encontrada</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

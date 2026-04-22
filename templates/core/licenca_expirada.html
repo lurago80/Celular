@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licença Expirada - Sistema de Gestão</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .license-card {
+            max-width: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .license-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .license-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .license-body {
+            padding: 40px;
+        }
+        .key-input {
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="license-card">
+            <div class="license-header">
+                <i class="bi bi-shield-exclamation license-icon"></i>
+                <h2>Licença Expirada</h2>
+                <p class="mb-0">Sistema bloqueado - Renovação necessária</p>
+            </div>
+            
+            <div class="license-body">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Período de uso expirado.</strong><br>
+                    Entre em contato com o suporte para obter uma nova chave de ativação.
+                </div>
+                
+                {% if licenca_anterior %}
+                <div class="mb-3">
+                    <p class="text-muted mb-1"><small>Última licença expirada em:</small></p>
+                    <strong>{{ licenca_anterior.data_expiracao|date:"d/m/Y" }}</strong>
+                </div>
+                {% endif %}
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Digite a chave de ativação:</label>
+                        <input type="text" 
+                               name="chave" 
+                               class="form-control form-control-lg key-input" 
+                               placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"
+                               required 
+                               autofocus
+                               style="text-align: center;">
+                        <small class="text-muted">Formato: XXXX-XXXX-XXXX-XXXX-XXXX</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-key-fill"></i> Ativar Licença
+                    </button>
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="text-center text-muted">
+                    <small>
+                        <i class="bi bi-info-circle"></i> 
+                        Sua licença terá validade de 3 meses
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-uppercase input
+        document.querySelector('input[name="chave"]').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,16 @@
+CHAVE DE LICENÇA - SISTEMA DE GESTÃO
+Loja de Celulares
+==================================================
+
+Chave: NYQN-VVGT-IJ76-KC0R-A4C5
+Data de geração: 28/02/2026 10:17:28
+Validade: 90 dias (3 meses)
+
+==================================================
+
+Instruções:
+1. Envie esta chave para o cliente
+2. O cliente deve acessar o sistema
+3. Quando aparecer a tela de 'Licença Expirada'
+4. Cole a chave no campo de ativação
+5. Clique em 'Ativar Licença'

@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+        <div class="sub">Visão geral do sistema</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'core:pdv' %}" class="btn btn-success">
+            <i class="bi bi-cash-register"></i> Abrir PDV
+        </a>
+        <a href="{% url 'core:nova_os' %}" class="btn btn-warning text-white">
+            <i class="bi bi-plus-circle"></i> Nova OS
+        </a>
+    </div>
+</div>
+
+<!-- Alertas -->
+{% if produtos_estoque_baixo > 0 %}
+<div class="alert alert-warning d-flex align-items-center gap-2 mb-3">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ produtos_estoque_baixo }} produto(s) com estoque abaixo do mínimo.</span>
+    <a href="{% url 'core:listar_produtos' %}?critico=1" class="ms-auto btn btn-sm btn-warning">Ver Produtos</a>
+</div>
+{% endif %}
+{% if os_aguardando > 0 %}
+<div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+    <i class="bi bi-tools"></i>
+    <span>{{ os_aguardando }} OS aguardando atendimento.</span>
+    <a href="{% url 'core:lista_os' %}?status=aguardando" class="ms-auto btn btn-sm btn-info text-white">Ver OS</a>
+</div>
+{% endif %}
+
+<!-- Stat Cards Vendas -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-indigo">
+            <div class="stat-icon mb-2"><i class="bi bi-bag-check-fill"></i></div>
+            <div class="stat-value">{{ total_vendas }}</div>
+            <div class="stat-label">Vendas Concluídas</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-amber">
+            <div class="stat-icon mb-2"><i class="bi bi-clock-history"></i></div>
+            <div class="stat-value">{{ vendas_abertas }}</div>
+            <div class="stat-label">Vendas em Aberto</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-sky">
+            <div class="stat-icon mb-2"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-value">{{ total_clientes }}</div>
+            <div class="stat-label">Clientes Cadastrados</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-emerald">
+            <div class="stat-icon mb-2"><i class="bi bi-cash-stack"></i></div>
+            <div class="stat-value" style="font-size:1.3rem;">R$&nbsp;{{ vendas_hoje|floatformat:2 }}</div>
+            <div class="stat-label">Faturado Hoje</div>
+        </div>
+    </div>
+</div>
+
+<!-- Stat Cards OS -->
+<div class="row g-3 mb-4">
+    <div class="col-12"><p class="text-muted fw-600 mb-1" style="font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;"><i class="bi bi-tools"></i> Ordens de Serviço</p></div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:44px;height:44px;background:#f1f5f9;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-hourglass text-secondary fs-5"></i>
+                </div>
+                <div>
+                    <div class="fw-bold fs-4 lh-1">{{ os_aguardando }}</div>
+                    <div class="text-muted small">Aguardando</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:44px;height:44px;background:#ede9fe;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-tools text-primary fs-5"></i>
+                </div>
+                <div>
+                    <div class="fw-bold fs-4 lh-1">{{ os_em_andamento }}</div>
+                    <div class="text-muted small">Em Andamento</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:44px;height:44px;background:#d1fae5;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-check-circle text-success fs-5"></i>
+                </div>
+                <div>
+                    <div class="fw-bold fs-4 lh-1">{{ os_concluidas }}</div>
+                    <div class="text-muted small">Concluídas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:44px;height:44px;background:#fef3c7;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-clipboard-list text-warning fs-5"></i>
+                </div>
+                <div>
+                    <div class="fw-bold fs-4 lh-1">{{ os_abertas }}</div>
+                    <div class="text-muted small">Total em Aberto</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabelas -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#fef3c7;color:#92400e;">
+                <span><i class="bi bi-clock-history"></i> Vendas Abertas</span>
+                <a href="{% url 'core:lista_os' %}" class="btn btn-sm btn-outline-warning" style="font-size:.75rem;">Ver todas</a>
+            </div>
+            <div class="card-body p-0">
+                {% if ultimas_vendas %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th></th></tr></thead>
+                        <tbody>
+                            {% for venda in ultimas_vendas %}
+                            <tr>
+                                <td><span class="badge bg-secondary">#{{ venda.id }}</span></td>
+                                <td>{{ venda.cliente.nome }}</td>
+                                <td><strong>R$ {{ venda.total|floatformat:2 }}</strong></td>
+                                <td>
+                                    <a href="{% url 'core:finalizar_venda' venda.id %}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-check2"></i> Finalizar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center text-muted">
+                    <i class="bi bi-check-circle fs-3 d-block mb-2 text-success"></i>
+                    Nenhuma venda em aberto.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#fff7ed;color:#9a3412;">
+                <span><i class="bi bi-tools"></i> OS em Aberto</span>
+                <a href="{% url 'core:lista_os' %}" class="btn btn-sm btn-outline-warning" style="font-size:.75rem;">Ver todas</a>
+            </div>
+            <div class="card-body p-0">
+                {% if ultimas_os %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Nº</th><th>Cliente</th><th>Aparelho</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for os in ultimas_os %}
+                            <tr>
+                                <td><a href="{% url 'core:detalhe_os' os.id %}" class="fw-600 text-decoration-none">{{ os.numero }}</a></td>
+                                <td>{{ os.cliente.nome }}</td>
+                                <td class="text-muted">{{ os.aparelho|truncatechars:18 }}</td>
+                                <td><span class="badge bg-{{ os.get_status_badge }}">{{ os.get_status_display }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center text-muted">
+                    <i class="bi bi-clipboard-check fs-3 d-block mb-2 text-success"></i>
+                    Nenhuma OS em aberto.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <i class="bi bi-graph-up text-primary"></i> Vendas nos Últimos 14 Dias
+            </div>
+            <div class="card-body">
+                <canvas id="chartVendas" height="75"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <i class="bi bi-bar-chart-fill text-indigo"></i> Top 5 Produtos (30 dias)
+            </div>
+            <div class="card-body">
+                <canvas id="chartTopProdutos" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 12;
+
+    const labels   = {{ chart_labels|safe }};
+    const vendas   = {{ chart_vendas|safe }};
+    const topLbl   = {{ chart_top_labels|safe }};
+    const topData  = {{ chart_top_data|safe }};
+
+    new Chart(document.getElementById('chartVendas'), {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'R$ Vendido',
+                data: vendas,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99,102,241,0.08)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#6366f1',
+                borderWidth: 2.5,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: { callback: v => 'R$ ' + v.toFixed(0), color: '#64748b' }
+                },
+                x: { grid: { display: false }, ticks: { color: '#64748b' } }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('chartTopProdutos'), {
+        type: 'bar',
+        data: {
+            labels: topLbl,
+            datasets: [{
+                label: 'Qtd. Vendida',
+                data: topData,
+                backgroundColor: ['#6366f1','#10b981','#f59e0b','#0ea5e9','#f43f5e'],
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1, color: '#64748b' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                y: { grid: { display: false }, ticks: { color: '#334155' } }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

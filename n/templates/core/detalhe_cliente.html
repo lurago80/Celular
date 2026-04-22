@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% block title %}Cliente: {{ cliente.nome }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-person-badge"></i> {{ cliente.nome }}</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'core:editar_cliente' cliente.id %}" class="btn btn-outline-secondary">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+            <a href="{% url 'core:listar_clientes' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Dados do cliente -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-person"></i> Dados Cadastrais</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">CPF</dt>
+                        <dd class="col-sm-8">{{ cliente.cpf }}</dd>
+                        <dt class="col-sm-4">Telefone</dt>
+                        <dd class="col-sm-8">{{ cliente.telefone }}</dd>
+                        <dt class="col-sm-4">E-mail</dt>
+                        <dd class="col-sm-8">{{ cliente.email|default:"-" }}</dd>
+                        <dt class="col-sm-4">Endereço</dt>
+                        <dd class="col-sm-8">{{ cliente.endereco|default:"-" }}</dd>
+                        <dt class="col-sm-4">Cadastro</dt>
+                        <dd class="col-sm-8">{{ cliente.data_cadastro|date:"d/m/Y" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumo financeiro -->
+        <div class="col-md-8">
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="fs-2 fw-bold text-success">R$ {{ total_gasto|floatformat:2 }}</div>
+                            <div class="text-muted small">Total Gasto</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="fs-2 fw-bold text-primary">{{ total_vendas }}</div>
+                            <div class="text-muted small">Compras Realizadas</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="fs-2 fw-bold text-warning">{{ os_abertas }}</div>
+                            <div class="text-muted small">OS em Aberto</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Últimas vendas -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-receipt"></i> Histórico de Vendas</h6>
+                </div>
+                <div class="card-body p-0">
+                    {% if vendas %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Data</th>
+                                    <th>Itens</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venda in vendas %}
+                                <tr>
+                                    <td>{{ venda.id }}</td>
+                                    <td>{{ venda.data_venda|date:"d/m/Y" }}</td>
+                                    <td>{{ venda.items.count }}</td>
+                                    <td>R$ {{ venda.total|floatformat:2 }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if venda.status == 'finalizada' %}success{% elif venda.status == 'cancelada' %}danger{% else %}warning{% endif %}">
+                                            {{ venda.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'core:visualizar_venda' venda.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3 mb-0">Nenhuma venda registrada.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Garantias ativas -->
+        {% if garantias %}
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-shield-check"></i> Garantias Ativas</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>IMEI</th>
+                                    <th>Validade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for g in garantias %}
+                                <tr>
+                                    <td>{{ g.produto.nome }}</td>
+                                    <td>{{ g.imei|default:"-" }}</td>
+                                    <td>{{ g.data_fim|date:"d/m/Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Ordens de serviço -->
+        {% if ordens_servico %}
+        <div class="col-md-{% if garantias %}6{% else %}12{% endif %}">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h6 class="mb-0"><i class="bi bi-tools"></i> Ordens de Serviço</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nº OS</th>
+                                    <th>Aparelho</th>
+                                    <th>Serviço</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for os in ordens_servico %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'core:detalhe_os' os.id %}">{{ os.numero }}</a>
+                                    </td>
+                                    <td>{{ os.aparelho }}</td>
+                                    <td>{{ os.get_tipo_servico_display }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ os.get_status_badge }}">{{ os.get_status_display }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

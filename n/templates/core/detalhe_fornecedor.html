@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% block title %}{{ fornecedor.nome }}{% endblock %}
+{% block page_title %}Fornecedor{% endblock %}
+
+{% block content %}
+<div class="page-content">
+
+    <div class="page-header">
+        <div>
+            <h2 class="page-header-title"><i class="bi bi-truck"></i> {{ fornecedor.nome }}</h2>
+            <p class="page-header-sub">
+                {% if fornecedor.ativo %}
+                    <span class="badge bg-success">Ativo</span>
+                {% else %}
+                    <span class="badge bg-secondary">Inativo</span>
+                {% endif %}
+                {% if fornecedor.cnpj %}&nbsp; CNPJ: {{ fornecedor.cnpj }}{% endif %}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'core:editar_fornecedor' fornecedor.id %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+            <a href="{% url 'core:listar_fornecedores' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        <!-- Dados do Fornecedor -->
+        <div class="col-lg-4">
+            <div class="card h-100" style="border-radius:var(--card-radius);box-shadow:var(--card-shadow);">
+                <div class="card-header fw-semibold" style="background:#3b82f6;color:#fff;border-radius:var(--card-radius) var(--card-radius) 0 0;">
+                    <i class="bi bi-building"></i> Dados Cadastrais
+                </div>
+                <div class="card-body">
+                    <dl class="mb-0">
+                        {% if fornecedor.contato %}
+                        <dt class="text-muted small">Contato</dt>
+                        <dd>{{ fornecedor.contato }}</dd>
+                        {% endif %}
+
+                        {% if fornecedor.telefone %}
+                        <dt class="text-muted small">Telefone</dt>
+                        <dd>
+                            <a href="tel:{{ fornecedor.telefone }}">{{ fornecedor.telefone }}</a>
+                            {% if fornecedor.telefone2 %}
+                            &nbsp;/&nbsp; <a href="tel:{{ fornecedor.telefone2 }}">{{ fornecedor.telefone2 }}</a>
+                            {% endif %}
+                        </dd>
+                        {% endif %}
+
+                        {% if fornecedor.email %}
+                        <dt class="text-muted small">E-mail</dt>
+                        <dd><a href="mailto:{{ fornecedor.email }}">{{ fornecedor.email }}</a></dd>
+                        {% endif %}
+
+                        {% if fornecedor.site %}
+                        <dt class="text-muted small">Site / WhatsApp</dt>
+                        <dd><a href="{{ fornecedor.site }}" target="_blank" rel="noopener">{{ fornecedor.site|truncatechars:40 }}</a></dd>
+                        {% endif %}
+
+                        {% if fornecedor.endereco %}
+                        <dt class="text-muted small">Endereço</dt>
+                        <dd>{{ fornecedor.endereco }}</dd>
+                        {% endif %}
+
+                        {% if fornecedor.observacoes %}
+                        <dt class="text-muted small">Observações</dt>
+                        <dd>{{ fornecedor.observacoes|linebreaksbr }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumo numérico -->
+        <div class="col-lg-8">
+            <div class="row g-3 mb-3">
+                <div class="col-sm-4">
+                    <div class="stat-card stat-indigo">
+                        <div class="stat-label">Total de Compras</div>
+                        <div class="stat-value">{{ total_compras }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="stat-card stat-emerald">
+                        <div class="stat-label">Produtos Vinculados</div>
+                        <div class="stat-value">{{ produtos.count }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="stat-card stat-amber">
+                        <div class="stat-label">Últimas Compras</div>
+                        <div class="stat-value">{{ compras|length }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produtos vinculados -->
+            {% if produtos %}
+            <div class="card mb-3" style="border-radius:var(--card-radius);box-shadow:var(--card-shadow);">
+                <div class="card-header fw-semibold d-flex justify-content-between align-items-center"
+                     style="background:#10b981;color:#fff;border-radius:var(--card-radius) var(--card-radius) 0 0;">
+                    <span><i class="bi bi-phone"></i> Produtos deste Fornecedor</span>
+                    <span class="badge bg-white text-dark">{{ produtos.count }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead style="background:#f8fafc;">
+                                <tr>
+                                    <th class="ps-3">Produto</th>
+                                    <th>Tipo</th>
+                                    <th>Preço Venda</th>
+                                    <th>Estoque</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in produtos %}
+                                <tr>
+                                    <td class="ps-3">
+                                        <a href="{% url 'core:editar_produto' p.id %}" class="text-decoration-none fw-semibold">{{ p.nome }}</a>
+                                    </td>
+                                    <td><small>{{ p.get_tipo_display }}</small></td>
+                                    <td>R$ {{ p.preco|floatformat:2 }}</td>
+                                    <td>
+                                        {% if p.estoque <= p.estoque_minimo %}
+                                            <span class="badge bg-danger">{{ p.estoque }}</span>
+                                        {% else %}
+                                            {{ p.estoque }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Histórico de Compras -->
+    <div class="card mt-3" style="border-radius:var(--card-radius);box-shadow:var(--card-shadow);">
+        <div class="card-header fw-semibold d-flex justify-content-between align-items-center"
+             style="background:#6366f1;color:#fff;border-radius:var(--card-radius) var(--card-radius) 0 0;">
+            <span><i class="bi bi-cart-check"></i> Histórico de Compras</span>
+            <a href="{% url 'core:nova_compra' %}" class="btn btn-sm btn-light">
+                <i class="bi bi-cart-plus"></i> Nova Compra
+            </a>
+        </div>
+        <div class="card-body p-0">
+            {% if compras %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background:#f8fafc;">
+                        <tr>
+                            <th class="ps-3">#</th>
+                            <th>Data</th>
+                            <th>Itens</th>
+                            <th>Total</th>
+                            <th>Pagamento</th>
+                            <th class="text-center">Recibo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in compras %}
+                        <tr>
+                            <td class="ps-3"><strong>#{{ c.id }}</strong></td>
+                            <td>{{ c.data_compra|date:"d/m/Y" }}</td>
+                            <td>{{ c.itens.count }} item(ns)</td>
+                            <td>R$ {{ c.total|floatformat:2 }}</td>
+                            <td>{{ c.get_forma_pagamento_display|default:"—" }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'core:recibo_compra' c.id %}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                    <i class="bi bi-receipt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if total_compras > 30 %}
+            <div class="px-3 py-2 text-muted small">
+                Exibindo as últimas 30 compras de {{ total_compras }} no total.
+                <a href="{% url 'core:listar_compras' %}?fornecedor={{ fornecedor.id }}">Ver todas</a>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-inbox" style="font-size:40px;"></i>
+                <p class="mt-2 mb-0">Nenhuma compra registrada para este fornecedor ainda.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,365 @@
+[ERROR] 07/03/2026 09:01:51 | core.erros | 
+============================================================
+ERRO ID: [0DD8AD31]
+URL: GET /
+Usuário: admin
+IP: 127.0.0.1
+Tipo: TemplateSyntaxError
+Mensagem: 'block' tag with name 'title' appears more than once
+============================================================
+Traceback (most recent call last):
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 35, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 93, in dashboard
+    return render(request, 'core/dashboard.html', context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 134, in render
+    compiled_parent = self.get_parent(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 131, in get_parent
+    return self.find_template(parent, context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 109, in find_template
+    template, origin = context.template.engine.find_template(
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    return parser.parse()
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 228, in do_block
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'title' appears more than once
+
+[ERROR] 07/03/2026 09:01:51 | django.request | Internal Server Error: /
+[ERROR] 07/03/2026 09:01:51 | django.server | "GET / HTTP/1.1" 500 10169
+[ERROR] 07/03/2026 09:01:51 | core.erros | 
+============================================================
+ERRO ID: [E22E12A3]
+URL: GET /
+Usuário: admin
+IP: 127.0.0.1
+Tipo: TemplateSyntaxError
+Mensagem: 'block' tag with name 'title' appears more than once
+============================================================
+Traceback (most recent call last):
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 35, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 93, in dashboard
+    return render(request, 'core/dashboard.html', context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 134, in render
+    compiled_parent = self.get_parent(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 131, in get_parent
+    return self.find_template(parent, context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 109, in find_template
+    template, origin = context.template.engine.find_template(
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    return parser.parse()
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 228, in do_block
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'title' appears more than once
+
+[ERROR] 07/03/2026 09:01:51 | django.request | Internal Server Error: /
+[ERROR] 07/03/2026 09:01:51 | django.server | "GET / HTTP/1.1" 500 10169
+[ERROR] 07/03/2026 09:06:17 | core.erros | 
+============================================================
+ERRO ID: [13FBF36F]
+URL: GET /
+Usuário: admin
+IP: 127.0.0.1
+Tipo: NoReverseMatch
+Mensagem: Reverse for 'lista_seriais' not found. 'lista_seriais' is not a valid view function or pattern name.
+============================================================
+Traceback (most recent call last):
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 35, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 93, in dashboard
+    return render(request, 'core/dashboard.html', context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\defaulttags.py", line 478, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\urls\resolvers.py", line 848, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'lista_seriais' not found. 'lista_seriais' is not a valid view function or pattern name.
+
+[ERROR] 07/03/2026 09:06:17 | django.request | Internal Server Error: /
+[ERROR] 07/03/2026 09:06:17 | django.server | "GET / HTTP/1.1" 500 9490
+[ERROR] 07/03/2026 09:06:17 | core.erros | 
+============================================================
+ERRO ID: [0BC71B2E]
+URL: GET /
+Usuário: admin
+IP: 127.0.0.1
+Tipo: NoReverseMatch
+Mensagem: Reverse for 'lista_seriais' not found. 'lista_seriais' is not a valid view function or pattern name.
+============================================================
+Traceback (most recent call last):
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 35, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 93, in dashboard
+    return render(request, 'core/dashboard.html', context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\defaulttags.py", line 478, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\urls\resolvers.py", line 848, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'lista_seriais' not found. 'lista_seriais' is not a valid view function or pattern name.
+
+[ERROR] 07/03/2026 09:06:17 | django.request | Internal Server Error: /
+[ERROR] 07/03/2026 09:06:17 | django.server | "GET / HTTP/1.1" 500 9490
+[ERROR] 02/04/2026 11:57:45 | core.erros | 
+============================================================
+ERRO ID: [FA8F303C]
+URL: GET /relatorio/os/
+Usuário: admin
+IP: 127.0.0.1
+Tipo: NoReverseMatch
+Mensagem: Reverse for 'export/excel/os/' not found. 'export/excel/os/' is not a valid view function or pattern name.
+============================================================
+Traceback (most recent call last):
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 35, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 2339, in relatorio_os
+    return render(request, 'core/relatorio_os.html', context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 1000, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\defaulttags.py", line 478, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\urls\resolvers.py", line 848, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'export/excel/os/' not found. 'export/excel/os/' is not a valid view function or pattern name.
+
+[ERROR] 02/04/2026 11:57:45 | django.request | Internal Server Error: /relatorio/os/
+[ERROR] 02/04/2026 11:57:45 | django.server | "GET /relatorio/os/ HTTP/1.1" 500 10244
+[ERROR] 09/04/2026 17:51:28 | core.erros | 
+============================================================
+ERRO ID: [E7BC3BA9]
+URL: GET /fornecedor/
+Usuário: admin
+IP: 127.0.0.1
+Tipo: TemplateSyntaxError
+Mensagem: Invalid block tag on line 192: 'endblock'. Did you forget to register or load this tag?
+============================================================
+Traceback (most recent call last):
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 502, in parse
+    compile_func = self.tags[command]
+KeyError: 'endblock'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 35, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 35, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "C:\VS_Code\Celular\core\views.py", line 2189, in listar_fornecedores
+    return render(request, 'core/lista_fornecedores.html', {'page_obj': page, 'busca': busca})
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\backends\django.py", line 33, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\engine.py", line 175, in get_template
+    template, origin = self.find_template(template_name)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    return parser.parse()
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 504, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "C:\VS_Code\Celular\.venv\lib\site-packages\django\template\base.py", line 565, in invalid_block_tag
+    raise self.error(
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 192: 'endblock'. Did you forget to register or load this tag?
+
+[ERROR] 09/04/2026 17:51:28 | django.request | Internal Server Error: /fornecedor/
+[ERROR] 09/04/2026 17:51:28 | django.server | "GET /fornecedor/ HTTP/1.1" 500 9757

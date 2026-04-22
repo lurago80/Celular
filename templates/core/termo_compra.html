@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termo de Compra #{{ compra.id }}</title>
+    <style>
+        /* ── Base ── */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9.5pt;
+            color: #1a1a1a;
+            background: #e8e8e8;
+        }
+
+        /* ── Botões no navegador ── */
+        .no-print {
+            text-align: center;
+            padding: 12px;
+            background: #343a40;
+        }
+        .no-print button {
+            padding: 8px 22px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            margin: 4px;
+            font-family: Arial, sans-serif;
+        }
+        .btn-imprimir { background: #0d6efd; color: #fff; }
+        .btn-fechar   { background: #6c757d; color: #fff; }
+
+        /* ── Folha A4 ── */
+        .folha {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 18px auto;
+            background: #fff;
+            padding: 14mm 16mm 14mm 16mm;
+            box-shadow: 0 4px 18px rgba(0,0,0,.18);
+        }
+
+        /* ══════════════ CABEÇALHO ══════════════ */
+        .cabecalho {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1a1a1a;
+            margin-bottom: 14px;
+        }
+        .cabecalho-logo {
+            flex-shrink: 0;
+            width: 52px; height: 52px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 22px; font-weight: bold;
+        }
+        .cabecalho-texto { flex: 1; }
+        .cabecalho-texto h1 {
+            font-size: 13pt; font-weight: 800;
+            text-transform: uppercase; letter-spacing: .5px; line-height: 1.2;
+        }
+        .cabecalho-texto p { font-size: 8pt; color: #555; margin-top: 2px; }
+        .cabecalho-num { text-align: right; flex-shrink: 0; }
+        .cabecalho-num .num-label { font-size: 7.5pt; color: #777; text-transform: uppercase; letter-spacing: 1px; }
+        .cabecalho-num .num-val {
+            font-size: 17pt; font-weight: 800;
+            border: 2.5px solid #1a1a1a;
+            padding: 2px 10px; border-radius: 4px;
+            display: inline-block; margin-top: 2px; letter-spacing: 1px;
+        }
+        .cabecalho-num .num-data { font-size: 8pt; color: #555; margin-top: 3px; }
+
+        /* ══════════════ TÍTULO CENTRAL ══════════════ */
+        .titulo-bloco { text-align: center; margin: 10px 0 14px; }
+        .titulo-bloco h2 {
+            font-size: 14pt; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 3px;
+            border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;
+            padding: 6px 0; display: inline-block; width: 100%;
+        }
+
+        /* ══════════════ GRID DE DADOS (2 colunas) ══════════════ */
+        .grid-dados {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .bloco-full { grid-column: 1 / -1; }
+
+        /* ── Bloco ── */
+        .bloco { border: 1px solid #d0d0d0; border-radius: 5px; overflow: hidden; }
+        .bloco-header {
+            background: #1a1a1a; color: #fff;
+            font-size: 8pt; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            padding: 4px 10px;
+        }
+        .bloco-body { padding: 8px 10px; background: #fafafa; }
+        .bloco-body table { width: 100%; border-collapse: collapse; }
+        .bloco-body table td {
+            padding: 2px 0; vertical-align: top;
+            font-size: 9pt; line-height: 1.4;
+        }
+        .bloco-body table td.label {
+            font-weight: 700; white-space: nowrap;
+            width: 80px; color: #444; padding-right: 6px;
+        }
+
+        /* ── Tabela de itens ── */
+        .tabela-itens {
+            width: 100%; border-collapse: collapse;
+            font-size: 8.5pt;
+        }
+        .tabela-itens th {
+            background: #1a1a1a; color: #fff;
+            padding: 5px 7px; text-align: center; font-size: 8pt;
+        }
+        .tabela-itens th:first-child { text-align: left; }
+        .tabela-itens td {
+            padding: 4px 7px; vertical-align: top;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .tabela-itens td.centro { text-align: center; }
+        .tabela-itens td.direita { text-align: right; }
+        .tabela-itens tr.total-row { background: #f0f0f0; font-weight: 700; }
+
+        /* ══════════════ CLÁUSULAS ══════════════ */
+        .clausulas { margin-top: 8px; border: 1px solid #d0d0d0; border-radius: 5px; overflow: hidden; }
+        .clausulas-header {
+            background: #1a1a1a; color: #fff;
+            font-size: 8pt; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px;
+        }
+        .clausulas-body { padding: 10px 12px; background: #fafafa; }
+        .clausula { margin-bottom: 8px; }
+        .clausula:last-child { margin-bottom: 0; }
+        .clausula-titulo {
+            font-size: 8.5pt; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .5px;
+            color: #1a1a1a; margin-bottom: 3px;
+        }
+        .clausula p {
+            font-size: 8.5pt; line-height: 1.55;
+            text-align: justify; color: #222; margin-bottom: 2px;
+        }
+
+        /* ══════════════ ASSINATURAS ══════════════ */
+        .assinaturas {
+            display: flex; justify-content: space-between;
+            gap: 30px; margin-top: 22px;
+        }
+        .ass-bloco { flex: 1; text-align: center; }
+        .ass-linha {
+            border-top: 1.5px solid #1a1a1a; padding-top: 5px;
+            margin-top: 42px; font-size: 8.5pt; line-height: 1.55; color: #222;
+        }
+
+        /* ══════════════ RODAPÉ ══════════════ */
+        .rodape {
+            text-align: center; font-size: 7.5pt; color: #888;
+            margin-top: 16px; border-top: 1px solid #e0e0e0; padding-top: 6px;
+        }
+
+        /* ══════════════ PRINT ══════════════ */
+        @media print {
+            body { background: #fff; }
+            .no-print { display: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { size: A4 portrait; margin: 0; }
+            .folha { width: 210mm; margin: 0; padding: 13mm 15mm 12mm 15mm; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Controles apenas no navegador -->
+<div class="no-print">
+    <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="btn-fechar"   onclick="window.close()">✖ Fechar</button>
+</div>
+
+<div class="folha">
+
+    <!-- ── Cabeçalho ── -->
+    <div class="cabecalho">
+        <div class="cabecalho-logo">
+            {% if emitente %}{{ emitente.nome|slice:":1" }}{% else %}L{% endif %}
+        </div>
+        <div class="cabecalho-texto">
+            {% if emitente %}
+            <h1>{{ emitente.nome }}</h1>
+            <p>{{ emitente.endereco }}</p>
+            <p>CNPJ: {{ emitente.cnpj }}{% if emitente.telefone %} &nbsp;|&nbsp; Tel: {{ emitente.telefone }}{% endif %}{% if emitente.email %} &nbsp;|&nbsp; {{ emitente.email }}{% endif %}</p>
+            {% endif %}
+        </div>
+        <div class="cabecalho-num">
+            <div class="num-label">Compra</div>
+            <div class="num-val">#{{ compra.id }}</div>
+            <div class="num-data">{{ compra.data_compra|date:"d/m/Y" }}</div>
+        </div>
+    </div>
+
+    <!-- ── Título ── -->
+    <div class="titulo-bloco">
+        <h2>Termo de Compra de Produto Usado</h2>
+    </div>
+
+    <!-- ── Grade de dados ── -->
+    <div class="grid-dados">
+
+        <!-- Vendedor (Fornecedor) -->
+        <div class="bloco">
+            <div class="bloco-header">Vendedor (Fornecedor)</div>
+            <div class="bloco-body">
+                <table>
+                    <tr><td class="label">Nome:</td><td><strong>{{ compra.fornecedor.nome }}</strong></td></tr>
+                    {% if compra.fornecedor.cpf_cnpj %}<tr><td class="label">CPF/CNPJ:</td><td>{{ compra.fornecedor.cpf_cnpj }}</td></tr>{% endif %}
+                    {% if compra.fornecedor.telefone %}<tr><td class="label">Telefone:</td><td>{{ compra.fornecedor.telefone }}</td></tr>{% endif %}
+                    {% if compra.fornecedor.endereco %}<tr><td class="label">Endereço:</td><td>{{ compra.fornecedor.endereco }}</td></tr>{% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Comprador (Empresa) -->
+        <div class="bloco">
+            <div class="bloco-header">Comprador (Adquirente)</div>
+            <div class="bloco-body">
+                <table>
+                    {% if emitente %}
+                    <tr><td class="label">Empresa:</td><td><strong>{{ emitente.nome }}</strong></td></tr>
+                    <tr><td class="label">CNPJ:</td><td>{{ emitente.cnpj }}</td></tr>
+                    {% if emitente.endereco %}<tr><td class="label">Endereço:</td><td>{{ emitente.endereco }}</td></tr>{% endif %}
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Produtos (largura total) -->
+        <div class="bloco bloco-full">
+            <div class="bloco-header">Produtos Adquiridos</div>
+            <div class="bloco-body" style="padding:0;">
+                <table class="tabela-itens">
+                    <thead>
+                        <tr>
+                            <th style="width:46%">PRODUTO</th>
+                            <th style="width:9%">QTD</th>
+                            <th style="width:20%">VALOR UNIT.</th>
+                            <th style="width:25%">SUBTOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in compra.items.all %}
+                        <tr>
+                            <td>{{ item.produto.nome }}</td>
+                            <td class="centro">{{ item.quantidade }}</td>
+                            <td class="direita">R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                            <td class="direita">R$ {{ item.subtotal|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="total-row">
+                            <td colspan="3" class="direita" style="padding-right:10px;">TOTAL GERAL</td>
+                            <td class="direita">R$ {{ compra.total|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagamento -->
+        <div class="bloco">
+            <div class="bloco-header">Pagamento</div>
+            <div class="bloco-body">
+                <table>
+                    <tr>
+                        <td class="label">Forma:</td>
+                        <td><strong>
+                            {% if compra.forma_pagamento == 'dinheiro' %}Dinheiro
+                            {% elif compra.forma_pagamento == 'pix' %}PIX
+                            {% elif compra.forma_pagamento == 'transferencia' %}Transferência Bancária
+                            {% elif compra.forma_pagamento == 'cheque' %}Cheque
+                            {% elif compra.forma_pagamento == 'boleto' %}Boleto
+                            {% else %}A definir{% endif %}
+                        </strong></td>
+                    </tr>
+                    <tr><td class="label">Total:</td><td><strong>R$ {{ compra.total|floatformat:2 }}</strong></td></tr>
+                    <tr><td class="label">Data:</td><td>{{ compra.data_compra|date:"d/m/Y" }}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        {% if compra.observacoes %}
+        <!-- Observações -->
+        <div class="bloco">
+            <div class="bloco-header">Observações</div>
+            <div class="bloco-body">
+                <p style="font-size:8.5pt;line-height:1.5;color:#333;">{{ compra.observacoes }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>{# fim grid-dados #}
+
+    <!-- ── Cláusulas ── -->
+    <div class="clausulas">
+        <div class="clausulas-header">Cláusulas e Declarações</div>
+        <div class="clausulas-body">
+            <div class="clausula">
+                <div class="clausula-titulo">I — Transmissão de Propriedade</div>
+                <p><strong>1.1.</strong> A propriedade dos produtos será transmitida ao COMPRADOR no ato da assinatura deste documento e do pagamento acordado.</p>
+                <p><strong>1.2.</strong> O VENDEDOR declara ser o legítimo proprietário dos produtos, assumindo total responsabilidade por qualquer ônus, vícios, dívidas ou litígios relacionados aos bens.</p>
+            </div>
+            <div class="clausula">
+                <div class="clausula-titulo">II — Declarações do Vendedor</div>
+                <p><strong>2.1.</strong> Os produtos são vendidos no estado em que se encontram ("como estão"), sem garantia de funcionamento ou condição, exceto o expressamente informado.</p>
+                <p><strong>2.2.</strong> O VENDEDOR declara expressamente que os produtos <strong>não são furtados ou roubados</strong>, assumindo total responsabilidade civil e criminal pela procedência dos bens.</p>
+            </div>
+            <div class="clausula">
+                <div class="clausula-titulo">III — Disposições Gerais</div>
+                <p><strong>3.1.</strong> Não há direito de arrependimento ou devolução para qualquer das partes após a assinatura deste termo.</p>
+                <p><strong>3.2.</strong> Este termo foi elaborado em 02 (duas) vias de igual teor e forma, ficando uma via com cada parte.</p>
+                <p><strong>3.3.</strong> Quaisquer disputas serão resolvidas pelo foro da comarca onde está situada a sede da empresa compradora.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Assinaturas ── -->
+    <div class="assinaturas">
+        <div class="ass-bloco">
+            <div class="ass-linha">
+                <strong>VENDEDOR (FORNECEDOR)</strong><br>
+                {{ compra.fornecedor.nome }}
+            </div>
+        </div>
+        <div class="ass-bloco">
+            <div class="ass-linha">
+                <strong>COMPRADOR (ADQUIRENTE)</strong><br>
+                {% if emitente %}{{ emitente.nome }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Rodapé ── -->
+    <div class="rodape">
+        Emitido em {{ compra.data_compra|date:"d/m/Y" }} às {{ compra.data_compra|date:"H:i" }}
+        {% if emitente %} &nbsp;|&nbsp; {{ emitente.nome }}{% endif %}
+        &nbsp;|&nbsp; Compra #{{ compra.id }}
+    </div>
+
+</div>{# fim .folha #}
+
+</body>
+</html>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        @media print {
+            body { margin: 0; padding: 10px; }
+            .no-print { display: none !important; }
+            @page { size: A4; margin: 1.5cm; }
+        }
+        .termo-container {
+            max-width: 210mm;
+            margin: 20px auto;
+            padding: 20mm;
+            background: white;
+            font-family: 'Times New Roman', serif;
+        }
+        .header {
+            border-bottom: 3px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            text-transform: uppercase;
+        }
+        .subtitle {
+            font-size: 14pt;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .clause {
+            margin: 15px 0;
+            text-align: justify;
+            line-height: 1.6;
+        }
+        .clause-title {
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .signature-section {
+            margin-top: 60px;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            margin-top: 80px;
+            text-align: center;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .items-table th, .items-table td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: left;
+        }
+        .items-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Botões de ação -->
+        <div class="text-center my-3 no-print">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="bi bi-printer"></i> Imprimir
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Fechar
+            </button>
+        </div>
+
+        <!-- Termo -->
+        <div class="termo-container">
+            <!-- Cabeçalho -->
+            <div class="header">
+                <div class="text-center">
+                    <h3 class="mb-2">{{ emitente.nome }}</h3>
+                    <p class="mb-0">{{ emitente.endereco }}</p>
+                    <p class="mb-0">CNPJ: {{ emitente.cnpj }}</p>
+                    <p class="mb-0">Telefone: {{ emitente.telefone }}</p>
+                </div>
+            </div>
+
+            <!-- Título -->
+            <div class="title">
+                Termo de Compra e Venda de Produtos Usados
+            </div>
+            
+            <div class="subtitle">
+                Documento de Aquisição Nº {{ compra.id }}
+            </div>
+
+            <!-- Data e Local -->
+            <div class="clause">
+                <p><strong>Data:</strong> {{ compra.data_compra|date:"d \d\e %B \d\e %Y" }}</p>
+            </div>
+
+            <!-- PARTES -->
+            <div class="clause-title">CLÁUSULA I - DAS PARTES</div>
+            <div class="clause">
+                <p>VENDEDOR (FORNECEDOR):</p>
+                <p><strong>Nome:</strong> {{ compra.fornecedor.nome }}</p>
+                {% if compra.fornecedor.telefone %}
+                <p><strong>Telefone:</strong> {{ compra.fornecedor.telefone }}</p>
+                {% endif %}
+                {% if compra.fornecedor.endereco %}
+                <p><strong>Endereço:</strong> {{ compra.fornecedor.endereco }}</p>
+                {% endif %}
+                {% if compra.fornecedor.cpf_cnpj %}
+                <p><strong>CPF/CNPJ:</strong> {{ compra.fornecedor.cpf_cnpj }}</p>
+                {% endif %}
+                
+                <p style="margin-top: 15px;">COMPRADOR (ADQUIRENTE):</p>
+                <p><strong>Nome:</strong> {{ emitente.nome }}</p>
+                <p><strong>CNPJ:</strong> {{ emitente.cnpj }}</p>
+                <p><strong>Endereço:</strong> {{ emitente.endereco }}</p>
+            </div>
+
+            <!-- OBJETO -->
+            <div class="clause-title">CLÁUSULA II - DO OBJETO</div>
+            <div class="clause">
+                <p>O presente termo tem por objeto a compra e venda dos produtos usados descritos abaixo, os quais passam a integrar o inventário da empresa compradora:</p>
+                
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th width="40%">PRODUTO</th>
+                            <th width="15%" class="text-center">QTD</th>
+                            <th width="22.5%" class="text-end">VALOR UNIT.</th>
+                            <th width="22.5%" class="text-end">VALOR TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in compra.items.all %}
+                        <tr>
+                            <td>{{ item.produto.nome }}</td>
+                            <td class="text-center">{{ item.quantidade }}</td>
+                            <td class="text-end">R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                            <td class="text-end"><strong>R$ {{ item.subtotal|floatformat:2 }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                        <tr style="background: #f0f0f0;">
+                            <td colspan="3" class="text-end"><strong>TOTAL GERAL:</strong></td>
+                            <td class="text-end"><strong>R$ {{ compra.total|floatformat:2 }}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- VALOR E FORMA DE PAGAMENTO -->
+            <div class="clause-title">CLÁUSULA III - DO VALOR E FORMA DE PAGAMENTO</div>
+            <div class="clause">
+                <p><strong>3.1.</strong> O valor total da compra é de <strong>R$ {{ compra.total|floatformat:2 }}</strong>.</p>
+                
+                <p><strong>3.2.</strong> A forma de pagamento será: <strong>
+                    {% if compra.forma_pagamento == 'dinheiro' %}Dinheiro
+                    {% elif compra.forma_pagamento == 'pix' %}PIX
+                    {% elif compra.forma_pagamento == 'transferencia' %}Transferência Bancária
+                    {% elif compra.forma_pagamento == 'cheque' %}Cheque
+                    {% elif compra.forma_pagamento == 'boleto' %}Boleto
+                    {% else %}A definir{% endif %}
+                </strong>.</p>
+                
+                <p><strong>3.3.</strong> O pagamento será efetuado no momento da assinatura deste termo.</p>
+            </div>
+
+            <!-- TRANSMISSÃO DE PROPRIEDADE -->
+            <div class="clause-title">CLÁUSULA IV - DA TRANSMISSÃO DE PROPRIEDADE</div>
+            <div class="clause">
+                <p><strong>4.1.</strong> A propriedade dos produtos objeto deste termo será transmitida ao COMPRADOR no momento da assinatura deste documento e do pagamento.</p>
+                <p><strong>4.2.</strong> O VENDEDOR declara ser o legítimo proprietário dos produtos, assumindo total responsabilidade por qualquer ônus, vícios, dívidas ou litígios relacionados aos bens.</p>
+            </div>
+
+            <!-- OBSERVAÇÕES ESPECIAIS -->
+            {% if compra.observacoes %}
+            <div class="clause-title">CLÁUSULA V - DAS OBSERVAÇÕES ESPECIAIS</div>
+            <div class="clause">
+                <p><strong>5.1.</strong> {{ compra.observacoes }}</p>
+            </div>
+            {% endif %}
+
+            <!-- DISPOSIÇÕES GERAIS -->
+            {% if compra.observacoes %}
+            <div class="clause-title">CLÁUSULA VI - DAS DISPOSIÇÕES GERAIS</div>
+            <div class="clause">
+                <p><strong>6.1.</strong> Os produtos são vendidos no estado em que se encontram ("como estão"), sem garantia de funcionamento ou condição.</p>
+                <p><strong>6.2.</strong> O VENDEDOR declara que os produtos não são furtados ou roubados, assumindo total responsabilidade civil e criminal.</p>
+                <p><strong>6.3.</strong> Não há direito de arrependimento ou devolução para qualquer das partes.</p>
+                <p><strong>6.4.</strong> Quaisquer disputas oriundas deste ato serão resolvidas pelo foro da comarca onde está situada a sede da empresa compradora.</p>
+                <p><strong>6.5.</strong> Este termo foi elaborado em 02 (duas) vias, ficando uma via com cada parte, tendo ambas os mesmos efeitos legais.</p>
+            </div>
+            {% else %}
+            <div class="clause-title">CLÁUSULA V - DAS DISPOSIÇÕES GERAIS</div>
+            <div class="clause">
+                <p><strong>5.1.</strong> Os produtos são vendidos no estado em que se encontram ("como estão"), sem garantia de funcionamento ou condição.</p>
+                <p><strong>5.2.</strong> O VENDEDOR declara que os produtos não são furtados ou roubados, assumindo total responsabilidade civil e criminal.</p>
+                <p><strong>5.3.</strong> Não há direito de arrependimento ou devolução para qualquer das partes.</p>
+                <p><strong>5.4.</strong> Quaisquer disputas oriundas deste ato serão resolvidas pelo foro da comarca onde está situada a sede da empresa compradora.</p>
+                <p><strong>5.5.</strong> Este termo foi elaborado em 02 (duas) vias, ficando uma via com cada parte, tendo ambas os mesmos efeitos legais.</p>
+            </div>
+            {% endif %}
+
+            <!-- Assinaturas -->
+            <div class="signature-section">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="signature-line">
+                            <strong>VENDEDOR (FORNECEDOR)</strong><br>
+                            {{ compra.fornecedor.nome }}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="signature-line">
+                            <strong>COMPRADOR (ADQUIRENTE)</strong><br>
+                            {{ emitente.nome }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rodapé -->
+            <div class="text-center mt-5" style="font-size: 10pt; color: #666;">
+                <p>Este documento foi gerado automaticamente pelo sistema de gestão.</p>
+                <p>Data de emissão: {{ compra.data_compra|date:"d/m/Y" }} às {{ compra.data_compra|date:"H:i" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-print on load (optional, commented by default)
+        // window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>
+

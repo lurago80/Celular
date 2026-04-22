@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Garantia #{{ garantia.id }}</title>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 12pt;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #0056b3;
+            font-size: 24pt;
+        }
+        .header p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0056b3;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #0056b3;
+            font-size: 14pt;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #333;
+        }
+        .info-value {
+            color: #555;
+        }
+        .product-info {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-box {
+            text-align: center;
+            width: 45%;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 10pt;
+            text-align: center;
+            color: #666;
+        }
+        .imei-box {
+            background: #fff3cd;
+            padding: 10px;
+            border: 2px solid #ffc107;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .imei-box strong {
+            font-size: 14pt;
+            color: #856404;
+        }
+        
+        .no-print {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        
+        .btn-print {
+            background: #0056b3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .btn-print:hover {
+            background: #004494;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn-print" onclick="window.close()">❌ Fechar</button>
+    </div>
+    
+    <div class="header">
+        <h1><i class="bi bi-shield-check"></i> CERTIFICADO DE GARANTIA</h1>
+        <p>{{ emitente.nome }}</p>
+        <p>{{ emitente.endereco }}</p>
+        <p>CNPJ: {{ emitente.cnpj }}</p>
+    </div>
+
+    <div class="info-box">
+        <h3>INFORMAÇÕES DO CLIENTE</h3>
+        <div class="info-row">
+            <span class="info-label">Nome:</span>
+            <span class="info-value">{{ cliente.nome }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">CPF:</span>
+            <span class="info-value">{{ cliente.cpf }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Telefone:</span>
+            <span class="info-value">{{ cliente.telefone }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Endereço:</span>
+            <span class="info-value">{{ cliente.endereco }}</span>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <h3>INFORMAÇÕES DA COMPRA</h3>
+        <div class="info-row">
+            <span class="info-label">Venda Nº:</span>
+            <span class="info-value">#{{ venda.id }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Data da Compra:</span>
+            <span class="info-value">{{ venda.data_venda|date:"d/m/Y" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Garantia Nº:</span>
+            <span class="info-value">#{{ garantia.id }}</span>
+        </div>
+    </div>
+
+    <div class="product-info">
+        <h3>PRODUTO</h3>
+        <div class="info-row">
+            <span class="info-label">Nome:</span>
+            <span class="info-value">{{ garantia.produto.nome }}</span>
+        </div>
+        {% if garantia.produto.marca %}
+        <div class="info-row">
+            <span class="info-label">Marca:</span>
+            <span class="info-value">{{ garantia.produto.marca }}</span>
+        </div>
+        {% endif %}
+        {% if garantia.produto.modelo %}
+        <div class="info-row">
+            <span class="info-label">Modelo:</span>
+            <span class="info-value">{{ garantia.produto.modelo }}</span>
+        </div>
+        {% endif %}
+        <div class="info-row">
+            <span class="info-label">Quantidade:</span>
+            <span class="info-value">{{ garantia.item.quantidade }} unidade(s)</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Valor Unitário:</span>
+            <span class="info-value">R$ {{ garantia.item.preco_unitario|floatformat:2 }}</span>
+        </div>
+        
+        {% if garantia.imei %}
+        <div class="imei-box">
+            <strong>IMEI: {{ garantia.imei }}</strong>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="info-box">
+        <h3>PERÍODO DE GARANTIA</h3>
+        <div class="info-row">
+            <span class="info-label">Data de Início:</span>
+            <span class="info-value">{{ garantia.data_inicio|date:"d/m/Y" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Data de Término:</span>
+            <span class="info-value">{{ garantia.data_fim|date:"d/m/Y" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Prazo:</span>
+            <span class="info-value">{{ garantia.prazo_dias }} dias</span>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <h3>TERMOS DA GARANTIA</h3>
+        <p>{{ garantia.texto }}</p>
+        <p><strong>OBSERVAÇÕES IMPORTANTES:</strong></p>
+        <ul>
+            <li>Esta garantia cobre apenas defeitos de fabricação do produto.</li>
+            <li>A garantia não cobre danos causados por uso inadequado, quedas, água ou outras causas externas.</li>
+            <li>Para acionar a garantia, entre em contato conosco dentro do período de validade.</li>
+            <li>É necessário apresentar este certificado e o comprovante de compra.</li>
+            <li>A garantia não contempla customizações ou modificações realizadas no produto.</li>
+        </ul>
+    </div>
+
+    <div class="signature-section">
+        <div class="signature-box">
+            <p><strong>Cliente</strong></p>
+            <p style="margin-top: 50px;">_________________________________</p>
+            <p>{{ cliente.nome }}</p>
+        </div>
+        <div class="signature-box">
+            <p><strong>Estabelecimento</strong></p>
+            <p style="margin-top: 50px;">_________________________________</p>
+            <p>{{ emitente.nome }}</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>{{ emitente.nome }}</strong></p>
+        <p>{{ emitente.endereco }}</p>
+        <p>CNPJ: {{ emitente.cnpj }} | Telefone: {{ emitente.telefone }}</p>
+        <p>Documento gerado em {{ "now"|date:"d/m/Y H:i" }}</p>
+    </div>
+</body>
+</html>
+

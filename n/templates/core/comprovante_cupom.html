@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cupom Fiscal - Venda #{{ venda.id }}</title>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                width: 80mm;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 10pt;
+            width: 80mm;
+            padding: 10mm;
+        }
+        
+        .no-print {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        
+        .btn-print {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .btn-print:hover {
+            background: #218838;
+        }
+        .centro {
+            text-align: center;
+        }
+        .linha {
+            border-bottom: 1px dashed #000;
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            font-size: 9pt;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 12pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn-print" onclick="window.close()">❌ Fechar</button>
+    </div>
+    
+    <div class="centro">
+        <p>--------------------------------</p>
+        {% if emitente %}
+        <p><strong>{{ emitente.nome }}</strong></p>
+        <p>{{ emitente.endereco }}</p>
+        <p>CNPJ: {{ emitente.cnpj }}</p>
+        {% endif %}
+        <p>--------------------------------</p>
+    </div>
+
+    <p>COMPROVANTE DE VENDA</p>
+    <p>Venda #{{ venda.id }} - {{ venda.data_venda|date:"d/m/Y H:i" }}</p>
+    <p>Vendedor: {{ venda.vendedor }}</p>
+    <div class="linha"></div>
+
+    <p><strong>CLIENTE</strong></p>
+    <p>{{ venda.cliente.nome }}</p>
+    <p>CPF: {{ venda.cliente.cpf }}</p>
+    <div class="linha"></div>
+
+    <p><strong>ITENS</strong></p>
+    <table>
+        {% for item in itens %}
+        <tr>
+            <td>{{ item.produto.nome }}</td>
+        </tr>
+        <tr>
+            <td>{{ item.quantidade|floatformat:0 }} x R$ {{ item.preco_unitario|floatformat:2 }} = R$ {{ item.subtotal|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="linha"></div>
+
+    {% if tradeins %}
+    <p><strong>TRADE-INS</strong></p>
+    {% for ti in tradeins %}
+    <p>-{{ ti.descricao }}: R$ {{ ti.valor_desconto|floatformat:2 }}</p>
+    {% endfor %}
+    <div class="linha"></div>
+    {% endif %}
+
+    <p class="total">TOTAL: R$ {{ venda.total|floatformat:2 }}</p>
+    <div class="linha"></div>
+
+    <div class="centro" style="margin-top: 20px;">
+        <p>Obrigado pela preferência!</p>
+        <p>{{ "now"|date:"d/m/Y H:i" }}</p>
+        <p>--------------------------------</p>
+    </div>
+</body>
+</html>
+

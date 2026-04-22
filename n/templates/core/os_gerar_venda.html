@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Gerar Venda da OS {{ os.numero }}{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width:640px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-receipt"></i> Gerar Venda da OS</h1>
+        <a href="{% url 'core:detalhe_os' os.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <!-- Resumo da OS -->
+    <div class="card border-info mb-4 shadow-sm">
+        <div class="card-header bg-info text-white">
+            <strong><i class="bi bi-tools"></i> OS #{{ os.numero }}</strong>
+            <span class="badge bg-light text-dark ms-2">{{ os.get_status_display }}</span>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Cliente</dt>
+                <dd class="col-sm-8">{{ os.cliente.nome }}</dd>
+                <dt class="col-sm-4">Aparelho</dt>
+                <dd class="col-sm-8">{{ os.aparelho }}</dd>
+                <dt class="col-sm-4">Serviço</dt>
+                <dd class="col-sm-8">{{ os.get_tipo_servico_display }}</dd>
+                <dt class="col-sm-4">Valor Final</dt>
+                <dd class="col-sm-8"><strong class="text-success fs-5">R$ {{ os.valor_final|floatformat:2 }}</strong></dd>
+                {% if os.garantia_dias %}
+                <dt class="col-sm-4">Garantia</dt>
+                <dd class="col-sm-8">{{ os.garantia_dias }} dias</dd>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+
+    <!-- Formulário de confirmação -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <strong><i class="bi bi-check2-circle"></i> Confirmar Pagamento</strong>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Forma de Pagamento *</label>
+                    <select name="forma_pagamento" class="form-select" id="id_forma_pagamento" required>
+                        {% for val, label in forma_pagamento_choices %}
+                        <option value="{{ val }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3" id="bloco_parcelas" style="display:none;">
+                    <label class="form-label">Número de Parcelas</label>
+                    <select name="parcelas" class="form-select" id="id_parcelas">
+                        <option value="1">1x (à vista)</option>
+                        <option value="2">2x</option>
+                        <option value="3">3x</option>
+                        <option value="4">4x</option>
+                        <option value="5">5x</option>
+                        <option value="6">6x</option>
+                        <option value="10">10x</option>
+                        <option value="12">12x</option>
+                    </select>
+                    <div id="valor_parcela" class="form-text text-success fw-bold"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Vendedor / Responsável</label>
+                    <input type="text" name="vendedor" class="form-control"
+                           value="{{ request.user.username }}" placeholder="Seu nome">
+                </div>
+
+                <div class="alert alert-warning small mb-3">
+                    <i class="bi bi-info-circle"></i>
+                    Ao confirmar, a OS será marcada como <strong>Entregue</strong> e uma venda de
+                    <strong>R$ {{ os.valor_final|floatformat:2 }}</strong> será registrada para
+                    <strong>{{ os.cliente.nome }}</strong>.
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success flex-grow-1">
+                        <i class="bi bi-check-circle"></i> Confirmar e Gerar Venda
+                    </button>
+                    <a href="{% url 'core:detalhe_os' os.id %}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var valorTotal = {{ os.valor_final|default:0 }};
+    var sel = document.getElementById('id_forma_pagamento');
+    var bloco = document.getElementById('bloco_parcelas');
+    var selParcelas = document.getElementById('id_parcelas');
+    var divValor = document.getElementById('valor_parcela');
+
+    function atualizar() {
+        var mostraParc = sel.value === 'credito' || sel.value === 'parcelado';
+        bloco.style.display = mostraParc ? '' : 'none';
+        if (mostraParc) calcularParcela();
+    }
+
+    function calcularParcela() {
+        var n = parseInt(selParcelas.value) || 1;
+        var vp = (valorTotal / n).toFixed(2);
+        divValor.textContent = n > 1 ? n + 'x de R$ ' + vp.replace('.', ',') : 'Pagamento à vista';
+    }
+
+    sel.addEventListener('change', atualizar);
+    selParcelas.addEventListener('change', calcularParcela);
+    atualizar();
+})();
+</script>
+{% endblock %}

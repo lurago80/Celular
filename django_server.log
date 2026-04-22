@@ -1,0 +1,59 @@
+
+==================================================
+Iniciando servidor Django - 2025-10-29 17:41:31
+==================================================
+[29/Oct/2025 17:41:35] "GET / HTTP/1.1" 302 0
+[29/Oct/2025 17:41:36] "GET /admin/login/?next=/ HTTP/1.1" 200 4179
+[29/Oct/2025 17:41:36] "GET /static/admin/css/base.css HTTP/1.1" 200 21544
+[29/Oct/2025 17:41:36] "GET /static/admin/css/login.css HTTP/1.1" 200 958
+[29/Oct/2025 17:41:36] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+[29/Oct/2025 17:41:36] "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2682
+[29/Oct/2025 17:41:36] "GET /static/admin/css/responsive.css HTTP/1.1" 200 17905
+[29/Oct/2025 17:41:36] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[29/Oct/2025 17:41:36] "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+Not Found: /favicon.ico
+[29/Oct/2025 17:41:36] "GET /favicon.ico HTTP/1.1" 404 9570
+[29/Oct/2025 17:41:47] "POST /admin/login/?next=/ HTTP/1.1" 302 0
+[29/Oct/2025 17:41:47] "GET / HTTP/1.1" 302 0
+[29/Oct/2025 17:41:47] "GET /licenca/verificar/ HTTP/1.1" 200 3933
+[29/Oct/2025 17:42:23] "POST /licenca/verificar/ HTTP/1.1" 302 0
+[29/Oct/2025 17:42:23] "GET / HTTP/1.1" 200 8611
+[29/Oct/2025 17:42:32] "GET /usuario/cadastrar/ HTTP/1.1" 200 13844
+[29/Oct/2025 17:43:07] "POST /usuario/cadastrar/ HTTP/1.1" 302 0
+[29/Oct/2025 17:43:07] "GET /usuario/listar/ HTTP/1.1" 200 11975
+[29/Oct/2025 17:43:10] "GET / HTTP/1.1" 200 8294
+Method Not Allowed (GET): /admin/logout/
+Method Not Allowed: /admin/logout/
+[29/Oct/2025 17:43:13] "GET /admin/logout/ HTTP/1.1" 405 0
+Method Not Allowed (GET): /admin/logout/
+Method Not Allowed: /admin/logout/
+[29/Oct/2025 17:43:15] "GET /admin/logout/ HTTP/1.1" 405 0
+[29/Oct/2025 17:43:20] "GET / HTTP/1.1" 200 8294
+Method Not Allowed (GET): /admin/logout/
+Method Not Allowed: /admin/logout/
+[29/Oct/2025 17:43:23] "GET /admin/logout/ HTTP/1.1" 405 0
+[29/Oct/2025 17:43:43] "GET / HTTP/1.1" 200 8294
+Not Found: /favicon.ico
+[29/Oct/2025 17:43:43] "GET /favicon.ico HTTP/1.1" 404 9570
+[29/Oct/2025 17:43:46] "GET / HTTP/1.1" 200 8294
+[29/Oct/2025 17:43:54] "GET /admin/ HTTP/1.1" 200 12626
+[29/Oct/2025 17:43:54] "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[29/Oct/2025 17:43:54] "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[29/Oct/2025 17:43:54] "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+[29/Oct/2025 17:43:57] "POST /admin/logout/ HTTP/1.1" 302 0
+[29/Oct/2025 17:43:57] "GET /admin/login/ HTTP/1.1" 200 4178
+[29/Oct/2025 17:44:05] "POST /admin/login/ HTTP/1.1" 302 0
+[29/Oct/2025 17:44:05] "GET /admin/ HTTP/1.1" 200 9686
+[29/Oct/2025 17:44:07] "GET / HTTP/1.1" 200 8294
+[29/Oct/2025 17:44:29] "GET / HTTP/1.1" 200 8294
+Not Found: /favicon.ico
+[29/Oct/2025 17:44:29] "GET /favicon.ico HTTP/1.1" 404 9570
+=================
+
+==================================================
+Iniciando servidor Django - 2026-03-20 13:54:49
+==================================================
+
+==================================================
+Iniciando servidor Django - 2026-03-20 17:35:36
+==================================================

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Ordem de Serviço{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 860px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-plus-circle"></i> Nova Ordem de Serviço</h1>
+        <a href="{% url 'core:lista_os' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Cliente e Aparelho -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <strong><i class="bi bi-person"></i> Cliente e Aparelho</strong>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Cliente <span class="text-danger">*</span></label>
+                        <select name="cliente" class="form-select" required>
+                            <option value="">Selecione um cliente...</option>
+                            {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}" {% if post.cliente == cliente.id|stringformat:"s" %}selected{% endif %}>
+                                {{ cliente.nome }} — {{ cliente.cpf }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Aparelho <span class="text-danger">*</span></label>
+                        <input type="text" name="aparelho" class="form-control" required
+                               placeholder="Ex: Samsung Galaxy A54 128GB Preto"
+                               value="{{ post.aparelho|default:'' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">IMEI</label>
+                        <input type="text" name="imei" class="form-control" maxlength="15"
+                               placeholder="15 dígitos (opcional)"
+                               value="{{ post.imei|default:'' }}">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Acessórios entregues</label>
+                        <input type="text" name="acessorios" class="form-control"
+                               placeholder="Ex: Capa, carregador, cabo (pode deixar em branco)"
+                               value="{{ post.acessorios|default:'' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Serviço -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <strong><i class="bi bi-tools"></i> Serviço</strong>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo de Serviço <span class="text-danger">*</span></label>
+                        <select name="tipo_servico" class="form-select" required>
+                            {% for val, label in tipo_choices %}
+                            <option value="{{ val }}" {% if post.tipo_servico == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Orçamento (R$)</label>
+                        <input type="number" name="valor_orcamento" class="form-control" step="0.01" min="0"
+                               placeholder="0.00" value="{{ post.valor_orcamento|default:'0' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Previsão de Entrega</label>
+                        <input type="date" name="data_previsao" class="form-control"
+                               value="{{ post.data_previsao|default:'' }}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Descrição do Problema <span class="text-danger">*</span></label>
+                        <textarea name="descricao_problema" class="form-control" rows="3" required
+                                  placeholder="Descreva o defeito relatado pelo cliente...">{{ post.descricao_problema|default:'' }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observações do Técnico (internas)</label>
+                        <textarea name="observacoes_tecnico" class="form-control" rows="2"
+                                  placeholder="Notas internas, não aparecem no comprovante...">{{ post.observacoes_tecnico|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Técnico e Garantia -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <strong><i class="bi bi-person-badge"></i> Responsável</strong>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Técnico Responsável</label>
+                        <input type="text" name="tecnico" class="form-control"
+                               placeholder="Nome do técnico"
+                               value="{{ post.tecnico|default:request.user.username }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Garantia do Serviço (dias)</label>
+                        <input type="number" name="garantia_dias" class="form-control" min="0"
+                               value="{{ post.garantia_dias|default:'90' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+            <a href="{% url 'core:lista_os' %}" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-check-circle"></i> Criar Ordem de Serviço
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

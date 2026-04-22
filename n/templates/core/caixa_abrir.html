@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Abrir Caixa{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-unlock"></i> Abrir Novo Caixa</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Valor Inicial em Caixa (R$)</label>
+                            <input type="number" class="form-control form-control-lg" name="valor_inicial" 
+                                   value="0" step="0.01" min="0" required>
+                            <small class="text-muted">Digite o valor em dinheiro que já está no caixa</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3" 
+                                      placeholder="Ex: Caixa aberto para dia de teste..."></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Abrir Caixa
+                            </button>
+                            <a href="{% url 'core:dashboard' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

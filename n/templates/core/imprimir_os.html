@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS #{{ os.numero }}</title>
+    <style>
+        /* ── Reset ── */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; font-size: 11px; color: #000; background: #fff; }
+
+        /* ── Folha A4 ── */
+        .folha-a4 { width: 210mm; margin: 0 auto; }
+
+        /* ── Cada via ocupa metade do A4 (297mm / 2 = 148mm) ── */
+        .via {
+            width: 210mm;
+            min-height: 148mm;
+            padding: 7mm 12mm 5mm 12mm;
+        }
+
+        /* ── Separador entre as duas vias ── */
+        .separador {
+            width: 210mm;
+            text-align: center;
+            line-height: 0;
+            border-top: 2px dashed #888;
+            margin: 0;
+        }
+        .separador span {
+            display: inline-block;
+            background: #fff;
+            padding: 0 10px;
+            font-size: 9px;
+            color: #777;
+            margin-top: -7px;
+            letter-spacing: 1px;
+        }
+
+        /* ── Cabeçalho de cada via ── */
+        .via-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 6px;
+        }
+        .emitente-info { line-height: 1.4; }
+        .emitente-info strong { font-size: 13px; }
+        .os-info { text-align: right; }
+        .via-label { font-size: 9px; color: #555; margin-bottom: 2px; font-weight: bold; text-transform: uppercase; }
+        .os-numero { font-size: 18px; font-weight: bold; border: 2px solid #000; padding: 2px 8px; display: inline-block; }
+        .status-badge { border: 1px solid #000; padding: 1px 6px; font-weight: bold; font-size: 9px; }
+
+        /* ── Layout de duas colunas dentro de cada via ── */
+        .corpo {
+            display: flex;
+            gap: 8mm;
+            margin-top: 4px;
+        }
+        .col-esq { flex: 1.3; }
+        .col-dir { flex: 0.9; }
+
+        /* ── Seções de dados ── */
+        .secao { margin-bottom: 5px; }
+        .secao-titulo {
+            font-weight: bold;
+            font-size: 9px;
+            text-transform: uppercase;
+            background: #efefef;
+            padding: 2px 5px;
+            border-left: 3px solid #333;
+            margin-bottom: 3px;
+        }
+        table.dados { width: 100%; border-collapse: collapse; }
+        table.dados td { padding: 1px 3px; vertical-align: top; font-size: 10px; }
+        table.dados td:first-child { font-weight: bold; white-space: nowrap; width: 85px; }
+        .descricao {
+            background: #f8f8f8;
+            border-left: 3px solid #bbb;
+            padding: 2px 5px;
+            font-style: italic;
+            font-size: 9.5px;
+            margin-top: 2px;
+        }
+
+        /* ── Rodapé de cada via ── */
+        .rodape-via {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 5px;
+            padding-top: 4px;
+            border-top: 1px solid #ddd;
+        }
+        .rodape-texto { font-size: 8.5px; color: #444; max-width: 62%; line-height: 1.35; }
+
+        /* ── Assinatura (apenas 1ª via) ── */
+        .assinatura-bloco { text-align: center; }
+        .linha-assinatura {
+            border-top: 1px solid #000;
+            width: 160px;
+            margin: 0 auto 2px auto;
+        }
+        .assinatura-label { font-size: 9px; color: #333; }
+
+        /* ── Caixa "Guarde este documento" (apenas 2ª via) ── */
+        .guarde-box {
+            border: 1px solid #999;
+            padding: 4px 6px;
+            background: #fafafa;
+            text-align: center;
+            font-size: 9px;
+            line-height: 1.4;
+            margin-top: 8px;
+        }
+
+        /* ── Observações / Termos e Condições ── */
+        .observacoes-box {
+            border: 1px solid #aaa;
+            padding: 4px 7px;
+            margin-top: 5px;
+            background: #fafafa;
+            font-size: 7px;
+            line-height: 1.35;
+            color: #222;
+        }
+        .observacoes-box .obs-titulo {
+            font-weight: bold;
+            font-size: 7.5px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .observacoes-box ol {
+            padding-left: 13px;
+            margin: 0;
+        }
+        .observacoes-box ol li {
+            margin-bottom: 1.5px;
+        }
+        .observacoes-box .obs-declaracao {
+            margin-top: 4px;
+            font-weight: bold;
+            font-style: italic;
+        }
+        .observacoes-box .obs-leitura {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 3px;
+            font-size: 7.5px;
+        }
+
+        /* ── Print ── */
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            @page { size: A4 portrait; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="folha-a4">
+
+    {# ════════════════ 1ª VIA — LOJA (coleta assinatura do cliente) ════════════════ #}
+    <div class="via">
+        <div class="via-header">
+            <div class="emitente-info">
+                {% if emitente %}
+                    <strong>{{ emitente.nome }}</strong><br>
+                    CNPJ: {{ emitente.cnpj }}<br>
+                    {% if emitente.telefone %}Tel: {{ emitente.telefone }}{% endif %}
+                    {% if emitente.email %} &nbsp;|&nbsp; {{ emitente.email }}{% endif %}
+                {% else %}
+                    <strong>IN9VE CELL</strong>
+                {% endif %}
+            </div>
+            <div class="os-info">
+                <div class="via-label">1ª Via — Loja</div>
+                <div class="os-numero">{{ os.numero }}</div>
+                <div style="margin-top:3px;"><span class="status-badge">{{ os.get_status_display|upper }}</span></div>
+                <div style="font-size:8.5px; margin-top:2px; color:#555;">{{ os.data_entrada|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+
+        <div class="corpo">
+            <!-- Coluna esquerda -->
+            <div class="col-esq">
+                <div class="secao">
+                    <div class="secao-titulo">Cliente</div>
+                    <table class="dados">
+                        <tr><td>Nome:</td><td>{{ os.cliente.nome }}</td></tr>
+                        <tr><td>CPF:</td><td>{{ os.cliente.cpf }}</td></tr>
+                        <tr><td>Telefone:</td><td>{{ os.cliente.telefone|default:"—" }}</td></tr>
+                    </table>
+                </div>
+                <div class="secao">
+                    <div class="secao-titulo">Aparelho</div>
+                    <table class="dados">
+                        <tr><td>Modelo:</td><td>{{ os.aparelho }}</td></tr>
+                        {% if os.imei %}<tr><td>IMEI:</td><td>{{ os.imei }}</td></tr>{% endif %}
+                        {% if os.acessorios %}<tr><td>Acessórios:</td><td>{{ os.acessorios }}</td></tr>{% endif %}
+                    </table>
+                </div>
+                <div class="secao">
+                    <div class="secao-titulo">Serviço</div>
+                    <table class="dados">
+                        <tr><td>Tipo:</td><td>{{ os.get_tipo_servico_display }}</td></tr>
+                        <tr><td>Técnico:</td><td>{{ os.tecnico|default:"—" }}</td></tr>
+                    </table>
+                    <div class="descricao">{{ os.descricao_problema }}</div>
+                </div>
+            </div>
+
+            <!-- Coluna direita -->
+            <div class="col-dir">
+                <div class="secao">
+                    <div class="secao-titulo">Datas</div>
+                    <table class="dados">
+                        <tr><td>Entrada:</td><td>{{ os.data_entrada|date:"d/m/Y" }}</td></tr>
+                        {% if os.data_previsao %}
+                        <tr><td>Previsão:</td><td>{{ os.data_previsao|date:"d/m/Y" }}</td></tr>
+                        {% endif %}
+                        {% if os.data_conclusao %}
+                        <tr><td>Conclusão:</td><td>{{ os.data_conclusao|date:"d/m/Y" }}</td></tr>
+                        {% endif %}
+                    </table>
+                </div>
+                <div class="secao">
+                    <div class="secao-titulo">Financeiro</div>
+                    <table class="dados">
+                        <tr><td>Orçamento:</td><td>R$ {{ os.valor_orcamento|floatformat:2 }}</td></tr>
+                        {% if os.valor_final %}
+                        <tr><td>Valor Final:</td><td><strong>R$ {{ os.valor_final|floatformat:2 }}</strong></td></tr>
+                        {% endif %}
+                        <tr><td>Garantia:</td><td>{{ os.garantia_dias }} dias</td></tr>
+                    </table>
+                </div>
+
+                <!-- Assinatura do cliente -->
+                <div class="assinatura-bloco" style="margin-top: 16px;">
+                    <div class="linha-assinatura"></div>
+                    <div class="assinatura-label">Assinatura do Cliente</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rodape-via">
+            <div class="rodape-texto">
+                Ao entregar o aparelho, o cliente declara estar ciente dos serviços a serem realizados
+                e autoriza a execução do orçamento aprovado.
+            </div>
+            <div style="font-size:8.5px; text-align:right; color:#555;">
+                {% if emitente %}{{ emitente.nome }}<br>{% endif %}
+                {{ os.data_entrada|date:"d/m/Y" }}
+            </div>
+        </div>
+
+        <div class="observacoes-box">
+            <div class="obs-titulo">Observações / Termos e Condições</div>
+            <ol>
+                <li>O aparelho somente poderá ser retirado pelo proprietário mediante apresentação deste documento ou sua ordem.</li>
+                <li>O aparelho ficará coberto por seguro contra roubo, incêndio ou qualquer outro dano durante a permanência em nosso estabelecimento. No caso de roubo, a cobertura será pelo valor de mercado ou a reposição de um similar, descontando o valor fixado no orçamento.</li>
+                <li>Não nos responsabilizamos pela perda de cadastros na memória do aparelho.</li>
+                <li>O serviço somente será efetuado no aparelho após aprovação do orçamento.</li>
+                <li>Em caso de não aprovação do orçamento, o cliente concederá ao serviço autorizado o prazo de 24 horas para adequar o produto às condições em que recebeu e proceder sua devolução devidamente lacrado.</li>
+                <li>A retirada do lacre de serviço invalida a <strong>GARANTIA DE MANUTENÇÃO</strong> de noventa dias.</li>
+                <li><strong>ATENÇÃO:</strong> O aparelho deixado para conserto, se não retirado no prazo de 120 (cento e vinte) dias a contar da data de entrega, será cobrado uma diária no valor de 0,25% (zero vírgula vinte e cinco por cento) sobre o valor do salário referência vigente na data de retirada, a título de pagamento das despesas por esta EMPRESA efetuadas com a reparação e/ou armazenagem do aparelho.</li>
+            </ol>
+            <div class="obs-declaracao">DECLARO que é de minha inteira responsabilidade a procedência desse aparelho; toda a documentação de aquisição está sob meu poder.</div>
+            <div class="obs-leitura">Atenção: Solicitamos a leitura deste documento antes de assinar.</div>
+        </div>
+    </div>{# fim 1ª via #}
+
+    {# ════════════════ Linha de corte ════════════════ #}
+    <div class="separador">
+        <span>✂ &nbsp; RECORTAR &nbsp; ✂</span>
+    </div>
+
+    {# ════════════════ 2ª VIA — CLIENTE (leva consigo) ════════════════ #}
+    <div class="via">
+        <div class="via-header">
+            <div class="emitente-info">
+                {% if emitente %}
+                    <strong>{{ emitente.nome }}</strong><br>
+                    CNPJ: {{ emitente.cnpj }}<br>
+                    {% if emitente.telefone %}Tel: {{ emitente.telefone }}{% endif %}
+                    {% if emitente.email %} &nbsp;|&nbsp; {{ emitente.email }}{% endif %}
+                {% else %}
+                    <strong>IN9VE CELL</strong>
+                {% endif %}
+            </div>
+            <div class="os-info">
+                <div class="via-label">2ª Via — Cliente</div>
+                <div class="os-numero">{{ os.numero }}</div>
+                <div style="margin-top:3px;"><span class="status-badge">{{ os.get_status_display|upper }}</span></div>
+                <div style="font-size:8.5px; margin-top:2px; color:#555;">{{ os.data_entrada|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+
+        <div class="corpo">
+            <!-- Coluna esquerda -->
+            <div class="col-esq">
+                <div class="secao">
+                    <div class="secao-titulo">Cliente</div>
+                    <table class="dados">
+                        <tr><td>Nome:</td><td>{{ os.cliente.nome }}</td></tr>
+                        <tr><td>CPF:</td><td>{{ os.cliente.cpf }}</td></tr>
+                        <tr><td>Telefone:</td><td>{{ os.cliente.telefone|default:"—" }}</td></tr>
+                    </table>
+                </div>
+                <div class="secao">
+                    <div class="secao-titulo">Aparelho</div>
+                    <table class="dados">
+                        <tr><td>Modelo:</td><td>{{ os.aparelho }}</td></tr>
+                        {% if os.imei %}<tr><td>IMEI:</td><td>{{ os.imei }}</td></tr>{% endif %}
+                        {% if os.acessorios %}<tr><td>Acessórios:</td><td>{{ os.acessorios }}</td></tr>{% endif %}
+                    </table>
+                </div>
+                <div class="secao">
+                    <div class="secao-titulo">Serviço</div>
+                    <table class="dados">
+                        <tr><td>Tipo:</td><td>{{ os.get_tipo_servico_display }}</td></tr>
+                        <tr><td>Técnico:</td><td>{{ os.tecnico|default:"—" }}</td></tr>
+                    </table>
+                    <div class="descricao">{{ os.descricao_problema }}</div>
+                </div>
+            </div>
+
+            <!-- Coluna direita -->
+            <div class="col-dir">
+                <div class="secao">
+                    <div class="secao-titulo">Datas</div>
+                    <table class="dados">
+                        <tr><td>Entrada:</td><td>{{ os.data_entrada|date:"d/m/Y" }}</td></tr>
+                        {% if os.data_previsao %}
+                        <tr><td>Previsão:</td><td>{{ os.data_previsao|date:"d/m/Y" }}</td></tr>
+                        {% endif %}
+                        {% if os.data_conclusao %}
+                        <tr><td>Conclusão:</td><td>{{ os.data_conclusao|date:"d/m/Y" }}</td></tr>
+                        {% endif %}
+                    </table>
+                </div>
+                <div class="secao">
+                    <div class="secao-titulo">Financeiro</div>
+                    <table class="dados">
+                        <tr><td>Orçamento:</td><td>R$ {{ os.valor_orcamento|floatformat:2 }}</td></tr>
+                        {% if os.valor_final %}
+                        <tr><td>Valor Final:</td><td><strong>R$ {{ os.valor_final|floatformat:2 }}</strong></td></tr>
+                        {% endif %}
+                        <tr><td>Garantia:</td><td>{{ os.garantia_dias }} dias</td></tr>
+                    </table>
+                </div>
+
+                <!-- Aviso para o cliente -->
+                <div class="guarde-box">
+                    <strong>Guarde este documento.</strong><br>
+                    Apresente-o ao retirar o aparelho.<br>
+                    Prazo de retirada: 30 dias após o aviso.
+                </div>
+            </div>
+        </div>
+
+        <div class="rodape-via">
+            <div class="rodape-texto">
+                Os serviços realizados têm garantia de <strong>{{ os.garantia_dias }} dias</strong>
+                contra defeitos de mão de obra, a partir da data de entrega.
+            </div>
+            <div style="font-size:8.5px; text-align:right; color:#555;">
+                {% if emitente %}{{ emitente.nome }}<br>{% endif %}
+                {{ os.data_entrada|date:"d/m/Y" }}
+            </div>
+        </div>
+
+        <div class="observacoes-box">
+            <div class="obs-titulo">Observações / Termos e Condições</div>
+            <ol>
+                <li>O aparelho somente poderá ser retirado pelo proprietário mediante apresentação deste documento ou sua ordem.</li>
+                <li>O aparelho ficará coberto por seguro contra roubo, incêndio ou qualquer outro dano durante a permanência em nosso estabelecimento. No caso de roubo, a cobertura será pelo valor de mercado ou a reposição de um similar, descontando o valor fixado no orçamento.</li>
+                <li>Não nos responsabilizamos pela perda de cadastros na memória do aparelho.</li>
+                <li>O serviço somente será efetuado no aparelho após aprovação do orçamento.</li>
+                <li>Em caso de não aprovação do orçamento, o cliente concederá ao serviço autorizado o prazo de 24 horas para adequar o produto às condições em que recebeu e proceder sua devolução devidamente lacrado.</li>
+                <li>A retirada do lacre de serviço invalida a <strong>GARANTIA DE MANUTENÇÃO</strong> de noventa dias.</li>
+                <li><strong>ATENÇÃO:</strong> O aparelho deixado para conserto, se não retirado no prazo de 120 (cento e vinte) dias a contar da data de entrega, será cobrado uma diária no valor de 0,25% (zero vírgula vinte e cinco por cento) sobre o valor do salário referência vigente na data de retirada, a título de pagamento das despesas por esta EMPRESA efetuadas com a reparação e/ou armazenagem do aparelho.</li>
+            </ol>
+            <div class="obs-declaracao">DECLARO que é de minha inteira responsabilidade a procedência desse aparelho; toda a documentação de aquisição está sob meu poder.</div>
+            <div class="obs-leitura">Atenção: Solicitamos a leitura deste documento antes de assinar.</div>
+        </div>
+    </div>{# fim 2ª via #}
+
+</div>{# fim .folha-a4 #}
+
+<!-- Botões de controle (somente no navegador, não aparecem na impressão) -->
+<div class="no-print" style="text-align:center; margin: 20px; font-family: Arial, sans-serif;">
+    <button onclick="window.print()"
+            style="padding: 10px 28px; font-size: 14px; cursor: pointer; margin-right: 8px; background:#0d6efd; color:#fff; border:none; border-radius:4px;">
+        🖨️ Imprimir
+    </button>
+    <button onclick="window.close()"
+            style="padding: 10px 28px; font-size: 14px; cursor: pointer; background:#6c757d; color:#fff; border:none; border-radius:4px;">
+        Fechar
+    </button>
+</div>
+
+<script>
+    window.onload = function () {
+        setTimeout(function () { window.print(); }, 500);
+    };
+</script>
+</body>
+</html>

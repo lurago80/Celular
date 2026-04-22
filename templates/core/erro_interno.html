@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro no Sistema</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .error-box { max-width: 750px; margin: 60px auto; }
+        .error-code-badge {
+            font-family: monospace;
+            font-size: 1.1rem;
+            background: #212529;
+            color: #ffc107;
+            padding: 4px 12px;
+            border-radius: 6px;
+            user-select: all;
+            cursor: copy;
+        }
+        .traceback-pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-size: 0.78rem;
+            border-radius: 6px;
+            padding: 16px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .icon-big { font-size: 4rem; }
+    </style>
+</head>
+<body>
+<div class="error-box">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-danger text-white py-4 text-center">
+            <div class="icon-big mb-2"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <h2 class="mb-1">Ops! Algo deu errado</h2>
+            <p class="mb-0 opacity-75">Ocorreu um erro inesperado no sistema.</p>
+        </div>
+        <div class="card-body p-4">
+
+            <div class="alert alert-warning d-flex align-items-start gap-3">
+                <i class="bi bi-info-circle-fill fs-4 flex-shrink-0 mt-1"></i>
+                <div>
+                    <strong>O que aconteceu?</strong><br>
+                    <span>{{ error_type }}: {{ error_message }}</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <p class="text-muted mb-1"><strong>Código de rastreio do erro:</strong></p>
+                <span class="error-code-badge" id="error-code" title="Clique para copiar">{{ error_id }}</span>
+                <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copiarCodigo()">
+                    <i class="bi bi-clipboard"></i> Copiar
+                </button>
+                <div class="form-text mt-1">
+                    Informe esse código ao desenvolvedor para que o problema seja localizado rapidamente.
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <p class="text-muted mb-1"><small><strong>URL com erro:</strong></small></p>
+                <code class="text-danger">{{ method }} {{ path }}</code>
+            </div>
+
+            <details class="mb-4">
+                <summary class="btn btn-sm btn-outline-dark w-100 text-start">
+                    <i class="bi bi-code-slash"></i> Detalhes técnicos (para o desenvolvedor)
+                </summary>
+                <div class="mt-2">
+                    <div class="d-flex justify-content-end mb-1">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="copiarTraceback()">
+                            <i class="bi bi-clipboard"></i> Copiar tudo
+                        </button>
+                    </div>
+                    <pre class="traceback-pre" id="traceback-content">{{ traceback }}</pre>
+                </div>
+            </details>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="javascript:history.back()" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+                <a href="/" class="btn btn-primary">
+                    <i class="bi bi-house"></i> Ir para o Dashboard
+                </a>
+                <button class="btn btn-outline-success" onclick="compartilharErro()">
+                    <i class="bi bi-share"></i> Copiar relatório do erro
+                </button>
+            </div>
+        </div>
+        <div class="card-footer text-muted text-center small">
+            IN9VE CELL &mdash; Erro registrado no arquivo de log do servidor.
+        </div>
+    </div>
+</div>
+
+<script>
+function copiarCodigo() {
+    const codigo = document.getElementById('error-code').textContent;
+    navigator.clipboard.writeText(codigo).then(() => {
+        mostrarToast('Código copiado: ' + codigo);
+    });
+}
+
+function copiarTraceback() {
+    const tb = document.getElementById('traceback-content').textContent;
+    navigator.clipboard.writeText(tb).then(() => {
+        mostrarToast('Detalhes técnicos copiados!');
+    });
+}
+
+function compartilharErro() {
+    const codigo = document.getElementById('error-code').textContent;
+    const tb = document.getElementById('traceback-content').textContent;
+    const relatorio = `=== RELATÓRIO DE ERRO ===\nCódigo: ${codigo}\nURL: {{ method }} {{ path }}\nErro: {{ error_type }}: {{ error_message }}\n\n=== DETALHES TÉCNICOS ===\n${tb}`;
+    navigator.clipboard.writeText(relatorio).then(() => {
+        mostrarToast('Relatório completo copiado! Envie ao desenvolvedor.');
+    });
+}
+
+function mostrarToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'position-fixed bottom-0 end-0 m-3 alert alert-success shadow';
+    toast.style.zIndex = 9999;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Copiar código ao clicar no badge
+document.getElementById('error-code').addEventListener('click', copiarCodigo);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

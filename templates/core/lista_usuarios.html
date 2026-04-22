@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Usuários{% endblock %}
+{% block page_title %}Usuários do Sistema{% endblock %}
+
+{% block content %}
+<div class="page-content">
+
+    <div class="page-header">
+        <div>
+            <h2 class="page-header-title"><i class="bi bi-people-fill"></i> Usuários do Sistema</h2>
+        </div>
+        <a href="{% url 'core:cadastrar_usuario' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-person-plus-fill"></i> Novo Usuário
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if usuarios %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Nome Completo</th>
+                            <th>E-mail</th>
+                            <th>Staff</th>
+                            <th>Superusuário</th>
+                            <th>Último Login</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td><strong>{{ usuario.username }}</strong></td>
+                            <td>
+                                {% if usuario.first_name or usuario.last_name %}
+                                    {{ usuario.first_name }} {{ usuario.last_name }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.email %}
+                                    {{ usuario.email }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.is_staff %}
+                                    <span class="badge bg-success">Sim</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Não</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.is_superuser %}
+                                    <span class="badge bg-danger">Sim</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Não</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.last_login %}
+                                    <small>{{ usuario.last_login|date:"d/m/Y H:i" }}</small>
+                                {% else %}
+                                    <span class="text-muted">Nunca</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.is_active %}
+                                    <span class="badge bg-success">Ativo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inativo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'core:editar_usuario' usuario.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="alert alert-info mt-3">
+                <i class="bi bi-info-circle"></i> 
+                <strong>Total de usuários:</strong> {{ usuarios|length }}
+            </div>
+            {% else %}
+            <p class="text-muted">Nenhum usuário cadastrado.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'core:dashboard' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprovante de Venda #{{ venda.id }}</title>
+    <style>
+        /* Estilo para impressão */
+        @media print {
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        /* Estilo para tela */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            margin: 20px;
+        }
+        
+        .no-print {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        
+        .btn-print {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .btn-print:hover {
+            background: #218838;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24pt;
+        }
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+        }
+        .total {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10pt;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
+        <a class="btn-print" href="{% url 'core:termo_venda' venda.id %}" target="_blank" style="text-decoration:none;">📄 Termo de Venda</a>
+        <button class="btn-print" onclick="window.close()">❌ Fechar</button>
+    </div>
+    
+    <div class="header">
+        <h1>COMPROVANTE DE VENDA</h1>
+        {% if emitente %}
+        <p><strong>{{ emitente.nome }}</strong></p>
+        <p>{{ emitente.endereco }}</p>
+        <p>CNPJ: {{ emitente.cnpj }} | Tel: {{ emitente.telefone }}</p>
+        {% endif %}
+    </div>
+
+    <div class="info-box">
+        <h3>Dados da Venda</h3>
+        <p><strong>Nº da Venda:</strong> #{{ venda.id }}</p>
+        <p><strong>Data:</strong> {{ venda.data_venda|date:"d/m/Y H:i" }}</p>
+        <p><strong>Vendedor:</strong> {{ venda.vendedor }}</p>
+    </div>
+
+    <div class="info-box">
+        <h3>Dados do Cliente</h3>
+        <p><strong>Nome:</strong> {{ venda.cliente.nome }}</p>
+        <p><strong>CPF:</strong> {{ venda.cliente.cpf }}</p>
+        <p><strong>Telefone:</strong> {{ venda.cliente.telefone }}</p>
+    </div>
+
+    <h3>Itens da Venda</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Cód.</th>
+                <th>Descrição</th>
+                <th>Qtde</th>
+                <th>VL. Unit.</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in itens %}
+            <tr>
+                <td>{{ item.produto.id }}</td>
+                <td>{{ item.produto.nome }}</td>
+                <td>{{ item.quantidade|floatformat:0 }}</td>
+                <td>R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                <td>R$ {{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+            {% if tradeins %}
+            {% for ti in tradeins %}
+            <tr style="background: #fff3cd;">
+                <td colspan="3"><strong>Trade-in: {{ ti.descricao }}</strong></td>
+                <td colspan="2"><strong>R$ -{{ ti.valor_desconto|floatformat:2 }}</strong></td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+        <tfoot>
+            <tr style="background: #d4edda; font-size: 14pt;">
+                <td colspan="4" style="text-align: right;"><strong>TOTAL:</strong></td>
+                <td class="total">R$ {{ venda.total|floatformat:2 }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer">
+        <p>Documento gerado em {{ "now"|date:"d/m/Y H:i" }} via IN9VE CELL</p>
+    </div>
+</body>
+</html>
+

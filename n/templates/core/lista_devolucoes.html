@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Devoluções{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-arrow-return-left"></i> Devoluções</h1>
+    </div>
+
+    <!-- Busca -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" name="busca" class="form-control" placeholder="Produto, nº da venda..." value="{{ busca }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Buscar</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'core:lista_devolucoes' %}" class="btn btn-outline-secondary w-100">Limpar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Total -->
+    <div class="alert alert-warning d-flex align-items-center gap-3 mb-3">
+        <i class="bi bi-cash-stack fs-4"></i>
+        <div>Total reembolsado (filtrado): <strong>R$ {{ total_reembolso|floatformat:2 }}</strong></div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Data</th>
+                            <th>Venda</th>
+                            <th>Produto</th>
+                            <th>Qtd</th>
+                            <th>Motivo</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Reembolso</th>
+                            <th>Estoque Reposto</th>
+                            <th>Registrado por</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dev in page_obj %}
+                        <tr>
+                            <td>{{ dev.id }}</td>
+                            <td>{{ dev.data_devolucao|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'core:venda_visualizar' dev.venda_id %}">#{{ dev.venda_id }}</a>
+                            </td>
+                            <td>{{ dev.produto.nome }}</td>
+                            <td>{{ dev.quantidade }}</td>
+                            <td>{{ dev.get_motivo_display }}</td>
+                            <td>{{ dev.get_tipo_display }}</td>
+                            <td class="text-end">R$ {{ dev.valor_reembolso|floatformat:2 }}</td>
+                            <td class="text-center">
+                                {% if dev.repor_estoque %}
+                                <span class="badge bg-success">Sim</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Não</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ dev.registrado_por }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center text-muted py-5">
+                                <i class="bi bi-arrow-return-left" style="font-size:48px;color:#ccc;"></i>
+                                <p class="mt-2">Nenhuma devolução registrada.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% include 'core/_paginacao.html' %}
+</div>
+{% endblock %}

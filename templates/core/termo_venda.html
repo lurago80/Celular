@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termo de Venda #{{ venda.id }}</title>
+    <style>
+        /* ── Base ── */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9.5pt;
+            color: #1a1a1a;
+            background: #e8e8e8;
+        }
+
+        /* ── Botões no navegador ── */
+        .no-print {
+            text-align: center;
+            padding: 12px;
+            background: #343a40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .no-print label { color: #fff; font-size: 13px; font-weight: bold; }
+        .no-print input[type="number"] {
+            width: 58px;
+            font-size: 14px;
+            padding: 5px 6px;
+            border: 2px solid #0d6efd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .no-print button {
+            padding: 8px 22px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+        .btn-imprimir { background: #0d6efd; color: #fff; }
+        .btn-fechar   { background: #6c757d; color: #fff; }
+
+        /* ── Folha A4 ── */
+        .folha {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 18px auto;
+            background: #fff;
+            padding: 14mm 16mm 14mm 16mm;
+            box-shadow: 0 4px 18px rgba(0,0,0,.18);
+        }
+
+        /* ══════════════ CABEÇALHO ══════════════ */
+        .cabecalho {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1a1a1a;
+            margin-bottom: 14px;
+        }
+        .cabecalho-logo {
+            flex-shrink: 0;
+            width: 52px; height: 52px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 22px; font-weight: bold;
+        }
+        .cabecalho-texto { flex: 1; }
+        .cabecalho-texto h1 {
+            font-size: 13pt; font-weight: 800;
+            text-transform: uppercase; letter-spacing: .5px; line-height: 1.2;
+        }
+        .cabecalho-texto p { font-size: 8pt; color: #555; margin-top: 2px; }
+        .cabecalho-num { text-align: right; flex-shrink: 0; }
+        .cabecalho-num .num-label { font-size: 7.5pt; color: #777; text-transform: uppercase; letter-spacing: 1px; }
+        .cabecalho-num .num-val {
+            font-size: 17pt; font-weight: 800;
+            border: 2.5px solid #1a1a1a;
+            padding: 2px 10px; border-radius: 4px;
+            display: inline-block; margin-top: 2px; letter-spacing: 1px;
+        }
+        .cabecalho-num .num-data { font-size: 8pt; color: #555; margin-top: 3px; }
+
+        /* ══════════════ TÍTULO CENTRAL ══════════════ */
+        .titulo-bloco { text-align: center; margin: 10px 0 14px; }
+        .titulo-bloco h2 {
+            font-size: 14pt; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 3px;
+            border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;
+            padding: 6px 0; display: inline-block; width: 100%;
+        }
+
+        /* ══════════════ GRID DE DADOS (2 colunas) ══════════════ */
+        .grid-dados {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .bloco-full { grid-column: 1 / -1; }
+
+        /* ── Bloco ── */
+        .bloco { border: 1px solid #d0d0d0; border-radius: 5px; overflow: hidden; }
+        .bloco-header {
+            background: #1a1a1a; color: #fff;
+            font-size: 8pt; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            padding: 4px 10px;
+        }
+        .bloco-body { padding: 8px 10px; background: #fafafa; }
+        .bloco-body table { width: 100%; border-collapse: collapse; }
+        .bloco-body table td {
+            padding: 2px 0; vertical-align: top;
+            font-size: 9pt; line-height: 1.4;
+        }
+        .bloco-body table td.label {
+            font-weight: 700; white-space: nowrap;
+            width: 80px; color: #444; padding-right: 6px;
+        }
+
+        /* ── Tabela de itens ── */
+        .tabela-itens {
+            width: 100%; border-collapse: collapse;
+            font-size: 8.5pt; margin-top: 4px;
+        }
+        .tabela-itens th {
+            background: #1a1a1a; color: #fff;
+            padding: 5px 7px; text-align: center; font-size: 8pt;
+        }
+        .tabela-itens th:first-child { text-align: left; }
+        .tabela-itens td {
+            padding: 4px 7px; vertical-align: top;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .tabela-itens td.centro { text-align: center; }
+        .tabela-itens td.direita { text-align: right; }
+        .tabela-itens tr.total-row { background: #f0f0f0; font-weight: 700; }
+        .tabela-itens tr.tradein-row { color: #c00; font-style: italic; }
+
+        /* ── Crachá de garantia contratual ── */
+        .cracha-garantia {
+            margin: 8px 0;
+            border: 2px solid #1a1a1a;
+            border-radius: 7px;
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+        }
+        .cracha-icone {
+            background: #1a1a1a; color: #fff;
+            width: 54px; flex-shrink: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 10px 0; font-size: 22px;
+        }
+        .cracha-conteudo {
+            flex: 1; display: flex;
+            align-items: center; justify-content: space-between;
+            padding: 8px 14px; background: #fff8e1; gap: 10px;
+        }
+        .cracha-prazo { text-align: center; }
+        .cracha-prazo .meses-numero {
+            font-size: 30pt; font-weight: 900; line-height: 1; color: #1a1a1a;
+        }
+        .cracha-prazo .meses-label {
+            font-size: 10pt; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px; color: #555;
+        }
+        .cracha-descricao {
+            font-size: 8.5pt; color: #333; text-align: left; line-height: 1.5; flex: 1;
+        }
+        .cracha-descricao strong { color: #000; }
+
+        /* ══════════════ CLÁUSULAS ══════════════ */
+        .clausulas { margin-top: 8px; border: 1px solid #d0d0d0; border-radius: 5px; overflow: hidden; }
+        .clausulas-header {
+            background: #1a1a1a; color: #fff;
+            font-size: 8pt; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px;
+        }
+        .clausulas-body { padding: 10px 12px; background: #fafafa; }
+        .clausula { margin-bottom: 8px; }
+        .clausula:last-child { margin-bottom: 0; }
+        .clausula-titulo {
+            font-size: 8.5pt; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .5px;
+            color: #1a1a1a; margin-bottom: 3px;
+        }
+        .clausula p {
+            font-size: 8.5pt; line-height: 1.55;
+            text-align: justify; color: #222; margin-bottom: 2px;
+        }
+
+        /* ══════════════ ASSINATURAS ══════════════ */
+        .assinaturas {
+            display: flex; justify-content: space-between;
+            gap: 30px; margin-top: 22px;
+        }
+        .ass-bloco { flex: 1; text-align: center; }
+        .ass-linha {
+            border-top: 1.5px solid #1a1a1a; padding-top: 5px;
+            margin-top: 42px; font-size: 8.5pt; line-height: 1.55; color: #222;
+        }
+
+        /* ══════════════ RODAPÉ ══════════════ */
+        .rodape {
+            text-align: center; font-size: 7.5pt; color: #888;
+            margin-top: 16px; border-top: 1px solid #e0e0e0; padding-top: 6px;
+        }
+
+        /* ══════════════ PRINT ══════════════ */
+        @media print {
+            body { background: #fff; }
+            .no-print { display: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { size: A4 portrait; margin: 0; }
+            .folha { width: 210mm; margin: 0; padding: 13mm 15mm 12mm 15mm; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Controles apenas no navegador -->
+<div class="no-print">
+    <label for="inputMeses">Garantia Contratual:</label>
+    <input type="number" id="inputMeses" value="{{ meses_garantia }}" min="0" max="60"
+           oninput="document.getElementById('campoMeses').textContent = this.value">
+    <span style="color:#adb5bd; font-size:12px;">meses</span>
+    <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="btn-fechar"   onclick="window.close()">✖ Fechar</button>
+</div>
+
+<div class="folha">
+
+    <!-- ── Cabeçalho ── -->
+    <div class="cabecalho">
+        <div class="cabecalho-logo">
+            {% if emitente %}{{ emitente.nome|slice:":1" }}{% else %}L{% endif %}
+        </div>
+        <div class="cabecalho-texto">
+            {% if emitente %}
+            <h1>{{ emitente.nome }}</h1>
+            <p>{{ emitente.endereco }}</p>
+            <p>CNPJ: {{ emitente.cnpj }}{% if emitente.telefone %} &nbsp;|&nbsp; Tel: {{ emitente.telefone }}{% endif %}{% if emitente.email %} &nbsp;|&nbsp; {{ emitente.email }}{% endif %}</p>
+            {% endif %}
+        </div>
+        <div class="cabecalho-num">
+            <div class="num-label">Venda</div>
+            <div class="num-val">#{{ venda.id }}</div>
+            <div class="num-data">{{ venda.data_venda|date:"d/m/Y" }}</div>
+        </div>
+    </div>
+
+    <!-- ── Título ── -->
+    <div class="titulo-bloco">
+        <h2>Termo de Venda</h2>
+    </div>
+
+    <!-- ── Grade de dados ── -->
+    <div class="grid-dados">
+
+        <!-- Vendedor -->
+        <div class="bloco">
+            <div class="bloco-header">Vendedor</div>
+            <div class="bloco-body">
+                <table>
+                    {% if emitente %}
+                    <tr><td class="label">Empresa:</td><td><strong>{{ emitente.nome }}</strong></td></tr>
+                    <tr><td class="label">CNPJ:</td><td>{{ emitente.cnpj }}</td></tr>
+                    {% if emitente.endereco %}<tr><td class="label">Endereço:</td><td>{{ emitente.endereco }}</td></tr>{% endif %}
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Comprador -->
+        <div class="bloco">
+            <div class="bloco-header">Comprador</div>
+            <div class="bloco-body">
+                <table>
+                    <tr><td class="label">Nome:</td><td><strong>{{ venda.cliente.nome }}</strong></td></tr>
+                    {% if venda.cliente.cpf %}<tr><td class="label">CPF:</td><td>{{ venda.cliente.cpf }}</td></tr>{% endif %}
+                    {% if venda.cliente.telefone %}<tr><td class="label">Telefone:</td><td>{{ venda.cliente.telefone }}</td></tr>{% endif %}
+                    {% if venda.cliente.endereco %}<tr><td class="label">Endereço:</td><td>{{ venda.cliente.endereco }}</td></tr>{% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Produtos (largura total) -->
+        <div class="bloco bloco-full">
+            <div class="bloco-header">Produtos Vendidos</div>
+            <div class="bloco-body" style="padding:0;">
+                <table class="tabela-itens">
+                    <thead>
+                        <tr>
+                            <th style="width:46%">PRODUTO</th>
+                            <th style="width:9%">QTD</th>
+                            <th style="width:20%">VALOR UNIT.</th>
+                            <th style="width:25%">SUBTOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in itens %}
+                        <tr>
+                            <td>
+                                {{ item.produto.nome }}
+                                {% if item.produto.marca %}<br><span style="font-size:8pt;color:#666;">{{ item.produto.marca }}</span>{% endif %}
+                                {% for garantia in venda.garantias.all %}
+                                    {% if garantia.produto.id == item.produto.id and garantia.imei %}
+                                    <br><span style="font-size:8pt;color:#444;">IMEI: {{ garantia.imei }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td class="centro">{{ item.quantidade }}</td>
+                            <td class="direita">R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                            <td class="direita">R$ {{ item.subtotal|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% for ti in tradeins %}
+                        <tr class="tradein-row">
+                            <td>↳ {{ ti.descricao }} <span style="color:#888;">({{ ti.condicao }})</span></td>
+                            <td class="centro">1</td>
+                            <td class="direita">- R$ {{ ti.valor_desconto|floatformat:2 }}</td>
+                            <td class="direita">- R$ {{ ti.valor_desconto|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="total-row">
+                            <td colspan="3" class="direita" style="padding-right:10px;">TOTAL</td>
+                            <td class="direita">R$ {{ venda.total|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagamento -->
+        <div class="bloco">
+            <div class="bloco-header">Pagamento</div>
+            <div class="bloco-body">
+                <table>
+                    <tr><td class="label">Forma:</td><td><strong>{{ venda.get_forma_pagamento_display }}</strong></td></tr>
+                    {% if venda.parcelas > 1 %}<tr><td class="label">Parcelas:</td><td>{{ venda.parcelas }}x</td></tr>{% endif %}
+                    <tr><td class="label">Total:</td><td><strong>R$ {{ venda.total|floatformat:2 }}</strong></td></tr>
+                    <tr><td class="label">Data:</td><td>{{ venda.data_venda|date:"d/m/Y" }}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Garantia Legal -->
+        <div class="bloco">
+            <div class="bloco-header">Garantia Legal (CDC)</div>
+            <div class="bloco-body">
+                <table>
+                    <tr><td class="label">Prazo:</td><td><strong>90 dias</strong></td></tr>
+                    <tr><td class="label">Início:</td><td>{{ venda.data_venda|date:"d/m/Y" }}</td></tr>
+                </table>
+                <div style="margin-top:6px;font-size:8pt;color:#555;line-height:1.4;">
+                    Conforme art. 26 do CDC, para produtos duráveis. Não cobre queda, líquidos ou mau uso.
+                </div>
+            </div>
+        </div>
+
+    </div>{# fim grid-dados #}
+
+    <!-- ── Crachá de Garantia Contratual ── -->
+    <div class="cracha-garantia">
+        <div class="cracha-icone">🏅</div>
+        <div class="cracha-conteudo">
+            <div class="cracha-prazo">
+                <div class="meses-numero" id="campoMeses">{{ meses_garantia }}</div>
+                <div class="meses-label">meses contratual</div>
+            </div>
+            <div class="cracha-descricao">
+                <strong>Garantia Contratual Adicional da Loja</strong><br>
+                Além da garantia legal, a loja oferece os meses indicados de garantia contratual, iniciando-se imediatamente após o término da garantia legal. Cobre defeitos de fabricação — não cobre danos físicos, líquidos, oxidação ou mau uso.
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Cláusulas ── -->
+    <div class="clausulas">
+        <div class="clausulas-header">Termos e Condições</div>
+        <div class="clausulas-body">
+            <div class="clausula">
+                <div class="clausula-titulo">I — Recebimento e Condição do Produto</div>
+                <p><strong>1.1.</strong> O COMPRADOR declara ter recebido o(s) produto(s) em perfeitas condições, testado(s) em sua presença, conferindo com as especificações descritas neste documento.</p>
+                <p><strong>1.2.</strong> O COMPRADOR declara ter sido informado sobre as condições e prazos de garantia, bem como sobre as limitações desta. Para acionamento, este documento deve ser apresentado.</p>
+            </div>
+            <div class="clausula">
+                <div class="clausula-titulo">II — Disposições Gerais</div>
+                <p><strong>2.1.</strong> Este termo foi elaborado em 02 (duas) vias, ficando uma via com cada parte, tendo ambas os mesmos efeitos legais.</p>
+                <p><strong>2.2.</strong> Quaisquer disputas serão resolvidas pelo foro da comarca onde está situada a sede da empresa vendedora.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Assinaturas ── -->
+    <div class="assinaturas">
+        <div class="ass-bloco">
+            <div class="ass-linha">
+                <strong>VENDEDOR</strong><br>
+                {% if emitente %}{{ emitente.nome }}{% endif %}
+            </div>
+        </div>
+        <div class="ass-bloco">
+            <div class="ass-linha">
+                <strong>COMPRADOR</strong><br>
+                {{ venda.cliente.nome }}<br>
+                {% if venda.cliente.cpf %}CPF: {{ venda.cliente.cpf }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Rodapé ── -->
+    <div class="rodape">
+        Emitido em {{ venda.data_venda|date:"d/m/Y" }} às {{ venda.data_venda|date:"H:i" }}
+        {% if emitente %} &nbsp;|&nbsp; {{ emitente.nome }}{% endif %}
+        &nbsp;|&nbsp; Venda #{{ venda.id }}
+    </div>
+
+</div>{# fim .folha #}
+
+</body>
+</html>
+        /* ── Reset / Base ── */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; background: #fff; }
+
+        /* ── Container A4 ── */
+        .documento {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm 18mm 15mm 18mm;
+            background: #fff;
+        }
+
+        /* ── Cabeçalho ── */
+        .cabecalho {
+            text-align: center;
+            border-bottom: 3px double #000;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .cabecalho h1 { font-size: 15pt; text-transform: uppercase; letter-spacing: 1px; }
+        .cabecalho h2 { font-size: 12pt; font-weight: normal; margin-top: 4px; }
+        .cabecalho p { font-size: 10pt; margin-top: 3px; color: #333; }
+
+        /* ── Título ── */
+        .titulo {
+            font-size: 16pt;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            margin: 18px 0 6px;
+            letter-spacing: 2px;
+        }
+        .subtitulo {
+            text-align: center;
+            font-size: 11pt;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        /* ── Seções / Cláusulas ── */
+        .clausula { margin: 14px 0; }
+        .clausula-titulo {
+            font-size: 10.5pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1px solid #666;
+            padding-bottom: 3px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .clausula p { text-align: justify; line-height: 1.65; margin-bottom: 5px; }
+
+        /* ── Tabela de produtos ── */
+        .tabela-itens {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 10pt;
+        }
+        .tabela-itens th, .tabela-itens td {
+            border: 1px solid #555;
+            padding: 5px 7px;
+        }
+        .tabela-itens th {
+            background: #efefef;
+            font-weight: bold;
+            text-align: center;
+        }
+        .tabela-itens td.texto { text-align: left; }
+        .tabela-itens td.centro { text-align: center; }
+        .tabela-itens td.direita { text-align: right; }
+        .tabela-itens tr.total-row {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        /* ── Caixa de destaque (garantia contratual) ── */
+        .destaque-garantia {
+            border: 2px solid #000;
+            padding: 10px 14px;
+            margin: 10px 0 14px;
+            background: #fafafa;
+        }
+        .destaque-garantia .campo-meses {
+            display: inline-block;
+            min-width: 40px;
+            border-bottom: 2px solid #000;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13pt;
+            padding: 0 4px;
+        }
+
+        /* ── Assinaturas ── */
+        .assinaturas {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            gap: 20px;
+        }
+        .assinatura-bloco {
+            flex: 1;
+            text-align: center;
+        }
+        .assinatura-linha {
+            border-top: 1px solid #000;
+            padding-top: 6px;
+            margin-top: 55px;
+            font-size: 9.5pt;
+            line-height: 1.5;
+        }
+
+        /* ── Rodapé ── */
+        .rodape {
+            text-align: center;
+            font-size: 8.5pt;
+            color: #666;
+            margin-top: 30px;
+            border-top: 1px solid #ccc;
+            padding-top: 8px;
+        }
+
+        /* ── Botões (apenas tela) ── */
+        .no-print {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 15px;
+            padding: 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+        }
+        .no-print label { font-size: 13px; margin-right: 8px; font-weight: bold; }
+        .no-print input[type="number"] {
+            width: 60px;
+            font-size: 14px;
+            padding: 4px 6px;
+            border: 2px solid #0d6efd;
+            border-radius: 4px;
+            text-align: center;
+            margin-right: 16px;
+        }
+        .btn { padding: 8px 22px; font-size: 13px; cursor: pointer; border: none; border-radius: 5px; margin: 4px; }
+        .btn-primary { background: #0d6efd; color: #fff; }
+        .btn-secondary { background: #6c757d; color: #fff; }
+
+        /* ── Print ── */
+        @media print {
+            .no-print { display: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { size: A4 portrait; margin: 0; }
+            .documento { padding: 15mm 15mm 12mm 15mm; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Controles de impressão (não aparecem no papel) -->
+<div class="no-print">
+    <label for="inputMeses">Meses de Garantia Contratual:</label>
+    <input type="number" id="inputMeses" value="{{ meses_garantia }}" min="0" max="60" oninput="document.getElementById('campoMeses').textContent = this.value">
+    <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="btn btn-secondary" onclick="window.close()">✖ Fechar</button>
+</div>
+
+<div class="documento">
+
+    <!-- Cabeçalho da loja -->
+    <div class="cabecalho">
+        {% if emitente %}
+        <h1>{{ emitente.nome }}</h1>
+        {% if emitente.endereco %}<p>{{ emitente.endereco }}</p>{% endif %}
+        <p>
+            CNPJ: {{ emitente.cnpj }}
+            {% if emitente.telefone %} &nbsp;|&nbsp; Tel: {{ emitente.telefone }}{% endif %}
+            {% if emitente.email %} &nbsp;|&nbsp; {{ emitente.email }}{% endif %}
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- Título -->
+    <div class="titulo">TERMO DE VENDA</div>
+    <div class="subtitulo">Documento de Venda Nº {{ venda.id }} &nbsp;—&nbsp; {{ venda.data_venda|date:"d/m/Y" }}</div>
+
+    <!-- PARTES -->
+    <div class="clausula">
+        <div class="clausula-titulo">I — Das Partes</div>
+        <p><strong>VENDEDOR:</strong><br>
+            {% if emitente %}{{ emitente.nome }} — CNPJ: {{ emitente.cnpj }}{% endif %}
+        </p>
+        <p style="margin-top:8px;"><strong>COMPRADOR:</strong><br>
+            Nome: <strong>{{ venda.cliente.nome }}</strong>
+            {% if venda.cliente.cpf %} &nbsp;|&nbsp; CPF: {{ venda.cliente.cpf }}{% endif %}
+            {% if venda.cliente.telefone %} &nbsp;|&nbsp; Tel: {{ venda.cliente.telefone }}{% endif %}<br>
+            {% if venda.cliente.endereco %}Endereço: {{ venda.cliente.endereco }}{% endif %}
+        </p>
+    </div>
+
+    <!-- OBJETO -->
+    <div class="clausula">
+        <div class="clausula-titulo">II — Do Objeto</div>
+        <p>O presente termo tem por objeto a compra e venda dos produto(s) descritos na tabela abaixo:</p>
+
+        <table class="tabela-itens">
+            <thead>
+                <tr>
+                    <th style="width:45%">PRODUTO</th>
+                    <th style="width:10%">QTD</th>
+                    <th style="width:20%">VALOR UNIT.</th>
+                    <th style="width:25%">SUBTOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens %}
+                <tr>
+                    <td class="texto">
+                        {{ item.produto.nome }}
+                        {% if item.produto.marca %}<br><small>{{ item.produto.marca }}</small>{% endif %}
+                        {% for garantia in venda.garantias.all %}
+                            {% if garantia.produto.id == item.produto.id and garantia.imei %}
+                            <br><small>IMEI: {{ garantia.imei }}</small>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td class="centro">{{ item.quantidade }}</td>
+                    <td class="direita">R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                    <td class="direita">R$ {{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+                {% if tradeins %}
+                <tr>
+                    <td colspan="4" style="padding:3px 7px; font-style:italic; font-size:9.5pt;">Trade-ins (descontos):</td>
+                </tr>
+                {% for ti in tradeins %}
+                <tr>
+                    <td class="texto" style="font-style:italic; color:#555;">↳ {{ ti.descricao }} ({{ ti.condicao }})</td>
+                    <td class="centro">1</td>
+                    <td class="direita" style="color:#c00;">- R$ {{ ti.valor_desconto|floatformat:2 }}</td>
+                    <td class="direita" style="color:#c00;">- R$ {{ ti.valor_desconto|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                <tr class="total-row">
+                    <td colspan="3" class="direita">TOTAL:</td>
+                    <td class="direita">R$ {{ venda.total|floatformat:2 }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- VALOR E PAGAMENTO -->
+    <div class="clausula">
+        <div class="clausula-titulo">III — Do Valor e Forma de Pagamento</div>
+        <p><strong>3.1.</strong> O valor total da presente venda é de <strong>R$ {{ venda.total|floatformat:2 }}</strong>.</p>
+        <p><strong>3.2.</strong> Forma de pagamento: <strong>{{ venda.get_forma_pagamento_display }}</strong>
+            {% if venda.parcelas > 1 %} em <strong>{{ venda.parcelas }}x</strong> parcelas{% endif %}.
+        </p>
+    </div>
+
+    <!-- GARANTIA LEGAL -->
+    <div class="clausula">
+        <div class="clausula-titulo">IV — Da Garantia Legal (Código de Defesa do Consumidor)</div>
+        <p><strong>4.1.</strong> Nos termos do art. 26 do CDC, o(s) produto(s) possui(em) garantia legal de <strong>90 (noventa) dias</strong> para vícios aparentes ou de fácil constatação, contados a partir da data desta venda.</p>
+        <p><strong>4.2.</strong> Para o caso de produto durável, a garantia legal é de <strong>90 dias</strong> para defeitos de funcionamento e de fácil constatação, e de <strong>30 dias</strong> para produtos não duráveis.</p>
+        <p><strong>4.3.</strong> A garantia não cobre danos causados por mau uso, queda, umidade, oxidação, ou qualquer dano físico provocado pelo consumidor ou por terceiros.</p>
+    </div>
+
+    <!-- GARANTIA CONTRATUAL (campo editável) -->
+    <div class="clausula">
+        <div class="clausula-titulo">V — Garantia Contratual (Adicional da Loja)</div>
+        <div class="destaque-garantia">
+            <p><strong>Além da garantia legal, a loja oferece
+                <span id="campoMeses" class="campo-meses">{{ meses_garantia }}</span>
+                meses de garantia contratual</strong>, iniciando-se imediatamente após o término da garantia legal.
+                Durante este período, o estabelecimento se compromete a reparar ou substituir o produto, sem custo adicional ao consumidor, desde que o defeito não seja ocasionado por uso inadequado, dano físico externo, líquidos, ou modificações não autorizadas.
+            </p>
+        </div>
+        <p><strong>5.1.</strong> A garantia contratual é prestada exclusivamente para defeitos de fabricação e não cobre avarias físicas, danos por líquidos, oxidação ou mau uso.</p>
+        <p><strong>5.2.</strong> Para reclamação dentro do período de garantia, o consumidor deverá apresentar este documento.</p>
+    </div>
+
+    <!-- TERMOS GERAIS -->
+    <div class="clausula">
+        <div class="clausula-titulo">VI — Disposições Gerais</div>
+        <p><strong>6.1.</strong> O COMPRADOR declara ter recebido o(s) produto(s) em perfeitas condições de funcionamento, testado(s) em sua presença e conferindo com as especificações descritas neste documento.</p>
+        <p><strong>6.2.</strong> O COMPRADOR declara ter sido informado sobre as condições e prazos de garantia, bem como sobre as limitações desta.</p>
+        <p><strong>6.3.</strong> Este termo foi elaborado em 02 (duas) vias, ficando uma via com cada parte, tendo ambas os mesmos efeitos legais.</p>
+        <p><strong>6.4.</strong> Quaisquer disputas oriundas deste ato serão resolvidas pelo foro da comarca onde está situada a sede da empresa vendedora.</p>
+    </div>
+
+    <!-- Assinaturas -->
+    <div class="assinaturas">
+        <div class="assinatura-bloco">
+            <div class="assinatura-linha">
+                <strong>VENDEDOR</strong><br>
+                {% if emitente %}{{ emitente.nome }}{% endif %}
+            </div>
+        </div>
+        <div class="assinatura-bloco">
+            <div class="assinatura-linha">
+                <strong>COMPRADOR</strong><br>
+                {{ venda.cliente.nome }}<br>
+                {% if venda.cliente.cpf %}CPF: {{ venda.cliente.cpf }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="rodape">
+        Documento gerado em {{ venda.data_venda|date:"d/m/Y" }} às {{ venda.data_venda|date:"H:i" }}
+        {% if emitente %} &nbsp;|&nbsp; {{ emitente.nome }}{% endif %}
+    </div>
+
+</div>{# fim .documento #}
+
+</body>
+</html>

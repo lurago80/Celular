@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+
+{% block title %}PDV - Frente de Caixa{% endblock %}
+
+{% block content %}
+<style>
+    .pdv-container {
+        background: #f5f5f5;
+        min-height: calc(100vh - 56px);
+    }
+    .produto-input {
+        font-size: 24px;
+        height: 70px;
+    }
+    .btn-pdv {
+        height: 80px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .total-display {
+        font-size: 48px;
+        font-weight: bold;
+        color: #dc3545;
+    }
+    .item-row:hover {
+        background: #f8f9fa;
+    }
+    .codigo-busca {
+        font-size: 20px;
+        padding: 15px;
+    }
+</style>
+
+<div class="pdv-container">
+    <div class="container-fluid p-3">
+        <div class="row h-100">
+            <!-- Lado Esquerdo: Busca e Produtos -->
+            <div class="col-md-5">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-upc-scan"></i> Ponto de Venda - PDV</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Busca por Código/Nome -->
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-search"></i> Buscar Produto</label>
+                            <input type="text" class="form-control codigo-busca" id="busca-produto" placeholder="Digite o código ou nome do produto..." autofocus>
+                            <div id="resultado-busca" class="mt-2" style="max-height: 300px; overflow-y: auto;">
+                                {% for produto in produtos %}
+                                <div class="card mb-2 produto-card" data-produto-id="{{ produto.id }}" style="cursor: pointer;" onclick="adicionarProduto({{ produto.id }}, '{{ produto.preco_venda }}')">
+                                    <div class="card-body p-2">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <strong>{{ produto.nome }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ produto.marca }} - Estoque: {{ produto.estoque }}</small>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                <h5 class="mb-0 text-success">R$ {{ produto.preco_venda|floatformat:2 }}</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lado Direito: Itens da Venda -->
+            <div class="col-md-7">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-cart-check"></i> Itens da Venda</h4>
+                        {% if venda %}
+                        <button class="btn btn-danger btn-sm" onclick="if(confirm('Deseja limpar o carrinho?')) window.location.href='{% url 'core:pdv_limpar' %}'">
+                            <i class="bi bi-trash"></i> Limpar
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Campos de Cliente, Vendedor e Desconto -->
+                    {% if venda %}
+                    <div class="card-body border-bottom bg-light">
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <label class="form-label"><small><strong>Cliente</strong></small></label>
+                                <select class="form-select form-select-sm" id="select-cliente" onchange="atualizarCliente()">
+                                    {% for cliente in clientes %}
+                                    <option value="{{ cliente.id }}" {% if cliente.id == venda.cliente.id %}selected{% endif %}>
+                                        {{ cliente.nome }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><small><strong>Vendedor</strong></small></label>
+                                <input type="text" class="form-control form-control-sm" id="input-vendedor" value="{{ venda.vendedor }}" onblur="atualizarVendedor()">
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <label class="form-label"><small><strong>Desconto (R$)</strong></small></label>
+                                <input type="number" class="form-control form-control-sm" id="input-desconto" value="0" step="0.01" min="0" onchange="calcularTotal()">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label"><small><strong>Forma de Pagamento</strong></small></label>
+                                <select class="form-select form-select-sm" id="select-pagamento">
+                                    <option value="dinheiro">Dinheiro</option>
+                                    <option value="debito">Débito</option>
+                                    <option value="credito">Crédito</option>
+                                    <option value="pix">PIX</option>
+                                    <option value="parcelado">Parcelado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="card-body p-0">
+                        {% if venda and itens %}
+                        <!-- Lista de Itens -->
+                        <div style="max-height: 500px; overflow-y: auto;">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th width="50">Item</th>
+                                        <th>Código</th>
+                                        <th>Descrição</th>
+                                        <th width="100">Qtde</th>
+                                        <th width="120">VL.Unit.</th>
+                                        <th width="140">VL.Total</th>
+                                        <th width="60"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in itens %}
+                                    <tr class="item-row">
+                                        <td><strong>{{ forloop.counter }}</strong></td>
+                                        <td>{{ item.produto.id|stringformat:"04d" }}</td>
+                                        <td>{{ item.produto.nome }}</td>
+                                        <td>{{ item.quantidade|floatformat:0 }}</td>
+                                        <td>R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                                        <td><strong>R$ {{ item.subtotal|floatformat:2 }}</strong></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="removerItem('{{ item.id }}')">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="card-footer bg-light">
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Subtotal:</span>
+                                        <strong>R$ <span id="subtotal">{{ venda.total|floatformat:2 }}</span></strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Desconto:</span>
+                                        <strong class="text-danger">-R$ <span id="valor-desconto">0.00</span></strong>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="h4">TOTAL:</span>
+                                        <h3 class="total-display mb-0">R$ <span id="total-final">{{ venda.total|floatformat:2 }}</span></h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="mb-2"><strong>Pagamento:</strong> <span id="forma-pagamento">Dinheiro</span></p>
+                                </div>
+                            </div>
+                            <div class="mt-3 d-grid gap-2">
+                                <button class="btn btn-success btn-pdv" onclick="finalizarVenda()">
+                                    <i class="bi bi-check-circle-fill"></i> FINALIZAR VENDA
+                                </button>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-cart-x" style="font-size: 64px; color: #ccc;"></i>
+                            <h4 class="mt-3 text-muted">Nenhum item adicionado</h4>
+                            <p class="text-muted">Busque e adicione produtos à venda</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Busca de produtos
+    document.getElementById('busca-produto').addEventListener('input', function() {
+        const termo = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.produto-card');
+        
+        cards.forEach(card => {
+            const texto = card.textContent.toLowerCase();
+            if (texto.includes(termo)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Adicionar produto
+    function adicionarProduto(produtoId, precoProduto) {
+        // Mostrar modal personalizado
+        const quantidade = prompt('Quantidade:', '1');
+        if (quantidade && parseInt(quantidade) > 0) {
+            const preco = prompt('Valor Unitário (R$):', precoProduto);
+            if (preco && parseFloat(preco) > 0) {
+                // Criar e submete o formulário
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{% url "core:pdv" %}';
+                form.innerHTML = `
+                    {% csrf_token %}
+                    <input type="hidden" name="produto_id" value="${produtoId}">
+                    <input type="hidden" name="quantidade" value="${quantidade}">
+                    <input type="hidden" name="preco_unitario" value="${preco}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            } else if (preco !== null) {
+                alert('Valor inválido! Digite um valor maior que zero.');
+            }
+        } else if (quantidade !== null) {
+            alert('Quantidade inválida! Digite um valor maior que zero.');
+        }
+    }
+
+    // Remover item
+    function removerItem(itemId) {
+        if (confirm('Deseja remover este item?')) {
+            // Implementar remoção via AJAX ou form
+            console.log('Remover item:', itemId);
+        }
+    }
+
+    // Atualizar Cliente
+    function atualizarCliente() {
+        const clienteId = document.getElementById('select-cliente').value;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = `
+            {% csrf_token %}
+            <input type="hidden" name="action" value="atualizar_cliente">
+            <input type="hidden" name="cliente_id" value="${clienteId}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Atualizar Vendedor
+    function atualizarVendedor() {
+        const vendedor = document.getElementById('input-vendedor').value;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = `
+            {% csrf_token %}
+            <input type="hidden" name="action" value="atualizar_vendedor">
+            <input type="hidden" name="vendedor" value="${vendedor}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Calcular desconto
+    function calcularTotal() {
+        const valorDesconto = parseFloat(document.getElementById('input-desconto').value) || 0;
+        const subtotalTexto = document.getElementById('subtotal').textContent.replace('R$', '').trim();
+        const subtotal = parseFloat(subtotalTexto.replace(',', '.')) || 0;
+        
+        const descontoAplicado = Math.min(valorDesconto, subtotal);
+        const total = subtotal - descontoAplicado;
+        
+        document.getElementById('valor-desconto').textContent = descontoAplicado.toFixed(2);
+        document.getElementById('total-final').textContent = total.toFixed(2);
+    }
+    
+    // Atualizar forma de pagamento
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectPagamento = document.getElementById('select-pagamento');
+        if (selectPagamento) {
+            selectPagamento.addEventListener('change', function() {
+                const formas = {
+                    'dinheiro': 'Dinheiro',
+                    'debito': 'Débito',
+                    'credito': 'Crédito',
+                    'pix': 'PIX',
+                    'parcelado': 'Parcelado'
+                };
+                document.getElementById('forma-pagamento').textContent = formas[this.value];
+            });
+        }
+    });
+
+    // Finalizar venda
+    function finalizarVenda() {
+        // Verificar se os elementos existem
+        const selectPagamento = document.getElementById('select-pagamento');
+        const inputDesconto = document.getElementById('input-desconto');
+        
+        if (!selectPagamento || !inputDesconto) {
+            alert('Erro: Campos de pagamento não encontrados');
+            return;
+        }
+        
+        const formaPagamento = selectPagamento.value || 'dinheiro';
+        const desconto = inputDesconto.value || '0';
+        
+        // Verificar se há itens na venda
+        const itens = document.querySelectorAll('.item-row').length;
+        if (itens === 0) {
+            alert('Adicione pelo menos um produto antes de finalizar!');
+            return;
+        }
+        
+        // Redirecionar com parâmetros
+        window.location.href = `{% url "core:pdv_finalizar" %}?pagamento=${formaPagamento}&desconto=${desconto}`;
+    }
+</script>
+{% endblock %}
+

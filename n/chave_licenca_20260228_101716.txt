@@ -1,0 +1,16 @@
+CHAVE DE LICENÇA - SISTEMA DE GESTÃO
+Loja de Celulares
+==================================================
+
+Chave: ZG2B-EAXJ-KBQ6-9IXW-C1D6
+Data de geração: 28/02/2026 10:17:16
+Validade: 90 dias (3 meses)
+
+==================================================
+
+Instruções:
+1. Envie esta chave para o cliente
+2. O cliente deve acessar o sistema
+3. Quando aparecer a tela de 'Licença Expirada'
+4. Cole a chave no campo de ativação
+5. Clique em 'Ativar Licença'
